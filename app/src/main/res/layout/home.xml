@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ede7de">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="80dp"
+        android:layout_height="84dp"
+        app:srcCompat="@drawable/logo"
+        android:onClick="goHomePage"/>
+
+<!--    <ImageButton-->
+<!--        android:id="@+id/navBtn"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="7dp"-->
+<!--        android:backgroundTint="#ede7de"-->
+<!--        app:srcCompat="@drawable/menu" />-->
+
+    <Button
+        android:id="@+id/bookingBtn"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="620dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#252E63"
+        android:fontFamily="@font/yeseva_one"
+        android:text="Make a Booking"
+        android:textSize="14sp"
+        android:onClick="goBookingPage"/>
+
+    <include
+        android:id="@+id/footer"
+        layout="@layout/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>

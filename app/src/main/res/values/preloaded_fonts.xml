@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/abril_fatface</item>
+        <item>@font/amarante</item>
+        <item>@font/arapey</item>
+        <item>@font/berkshire_swash</item>
+        <item>@font/calistoga</item>
+        <item>@font/cardo</item>
+        <item>@font/chela_one</item>
+        <item>@font/chicle</item>
+        <item>@font/handlee</item>
+        <item>@font/rammetto_one</item>
+        <item>@font/shanti</item>
+        <item>@font/spicy_rice</item>
+        <item>@font/yeseva_one</item>
+    </array>
+</resources>

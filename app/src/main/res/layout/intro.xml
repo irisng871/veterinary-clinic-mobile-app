@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ede7de">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="199dp"
+        android:layout_height="203dp"
+        android:layout_marginTop="190dp"
+        android:layout_centerHorizontal="true"
+        app:srcCompat="@drawable/logo"/>
+
+    <TextView
+        android:id="@+id/slogan"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:fontFamily="@font/abril_fatface"
+        android:lineSpacingExtra="8sp"
+        android:text="Welcome to..."
+        android:textAlignment="center"
+        android:textSize="18sp"
+        tools:layout_editor_absoluteX="32dp"
+        tools:layout_editor_absoluteY="390dp" />
+
+    <Button
+        android:id="@+id/goRegisterBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="460dp"
+        android:backgroundTint="#252E63"
+        android:fontFamily="@font/yeseva_one"
+        android:onClick="goRegisterPage"
+        android:text="I am new customer"
+        android:textSize="14sp"/>
+
+    <Button
+        android:id="@+id/goLoginBtn"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="530dp"
+        android:backgroundTint="#ede7de"
+        android:fontFamily="@font/yeseva_one"
+        android:onClick="goLoginPage"
+        android:shadowColor="#000000"
+        android:text="I am existing customer"
+        android:textColor="#252E63"
+        android:textSize="14sp"
+        app:strokeColor="#252E63"
+        app:strokeWidth="2dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="600dp"
+        android:background="#BFBDBD" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="640dp"
+        android:layout_centerHorizontal="true">
+
+        <ImageButton
+            android:id="@+id/petshelter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/animal_shelter"
+            android:backgroundTint="#ede7de"/>
+
+        <ImageButton
+            android:id="@+id/clinic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="130dp"
+            app:srcCompat="@drawable/clinic"
+            android:backgroundTint="#ede7de"/>
+
+    </RelativeLayout>
+</RelativeLayout>

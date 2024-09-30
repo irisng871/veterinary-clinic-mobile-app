@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ede7de">
+
+    <TextView
+        android:id="@+id/editAdoptablePetProfileHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#252E63"
+        android:fontFamily="@font/yeseva_one"
+        android:padding="15dp"
+        android:text="Edit Adoptable Pet Profile"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="80dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petProfileImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:text="My Profile Image"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <ImageButton
+                        android:id="@+id/profileImage"
+                        android:layout_width="130dp"
+                        android:layout_height="130dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginTop="30dp"
+                        android:scaleType="centerInside"
+                        app:srcCompat="@drawable/ic_launcher_foreground" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="260dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Name"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/name"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="360dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petGender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Gender"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/selectPetGender"
+                        style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                        android:layout_width="290dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="30dp"
+                        android:background="@drawable/spinner_stroke"
+                        tools:ignore="TouchTargetSizeCheck"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="460dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petWeight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Weight (kg)"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/weight"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="560dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petEstimatedBirthday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Estimated Birthday"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true"
+                        android:hint="DD/MM/YYYY">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/estimatedBirthday"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/pickDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#ede7de"
+                        android:layout_marginTop="33dp"
+                        android:layout_marginStart="220dp"
+                        app:srcCompat="@drawable/calendar" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="660dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petEstimatedAge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Estimated Age"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/estimatedAge"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp"
+                            android:inputType="none"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="760dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petNeutered"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Neutered"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <Spinner
+                        android:id="@+id/selectPetNeutered"
+                        style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                        android:layout_width="290dp"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="30dp"
+                        android:background="@drawable/spinner_stroke"
+                        tools:ignore="TouchTargetSizeCheck"/>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="860dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petPersonality"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pet Personality"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/personality"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp"
+                            android:inputType="textMultiLine"
+                            android:maxLines="6"
+                            android:scrollbars="vertical"
+                            android:gravity="top"
+                            android:overScrollMode="always" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1010dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petHealthStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pet Health Status"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/healthStatus"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp"
+                            android:inputType="textMultiLine"
+                            android:maxLines="6"
+                            android:scrollbars="vertical"
+                            android:gravity="top"
+                            android:overScrollMode="always" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1160dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petAllergy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pet Allergy"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/allergy"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1260dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/petHistory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pet History"
+                        android:textColor="#000000"
+                        android:textSize="16sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="290dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="25dp"
+                        android:textColor="#000000"
+                        app:boxCornerRadiusBottomEnd="25dp"
+                        app:boxCornerRadiusBottomStart="25dp"
+                        app:boxCornerRadiusTopEnd="25dp"
+                        app:boxCornerRadiusTopStart="25dp"
+                        app:hintEnabled="true">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/history"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:fontFamily="@font/cardo"
+                            android:textSize="12sp"
+                            android:inputType="textMultiLine"
+                            android:maxLines="6"
+                            android:scrollbars="vertical"
+                            android:gravity="top"
+                            android:overScrollMode="always" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </RelativeLayout>
+
+                <Button
+                    android:id="@+id/editBtn"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="1420dp"
+                    android:layout_marginBottom="30dp"
+                    android:backgroundTint="#252E63"
+                    android:fontFamily="@font/yeseva_one"
+                    android:text="Edit"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>
