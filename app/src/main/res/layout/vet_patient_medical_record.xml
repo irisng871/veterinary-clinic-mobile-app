@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ede7de">
+    android:background="#d7dade">
 
     <TextView
-        android:id="@+id/myPetHeader"
+        android:id="@+id/myPatientMedicalRecordListHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,33 +15,26 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="My Pet"
+        android:text="Medical Record List"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
 
+    <ImageButton
+        android:id="@+id/backBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30px"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/left_chevron"
+        android:baselineAligned="false"/>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/petRecyclerView"
+        android:id="@+id/patientMRRecyclerView"
         android:layout_width="300dp"
-        android:layout_height="540dp"
+        android:layout_height="640dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
         android:orientation="horizontal"/>
-
-    <Button
-        android:id="@+id/addBtn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="620dp"
-        android:layout_marginStart="290dp"
-        android:backgroundTint="#252E63"
-        android:text="+">
-    </Button>
-
-    <include
-        android:id="@+id/footer"
-        layout="@layout/footer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
 </RelativeLayout>

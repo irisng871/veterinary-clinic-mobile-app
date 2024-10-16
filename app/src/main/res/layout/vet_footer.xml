@@ -27,7 +27,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goPatientPage"
+                    android:onClick="goMyPatientPage"
                     app:srcCompat="@drawable/pawprint" />
 
                 <TextView
@@ -44,33 +44,33 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="100dp">
+                android:layout_marginLeft="80dp">
 
                 <ImageView
-                    android:id="@+id/goSlotBtn"
+                    android:id="@+id/goAppointmentBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goSlotPage"
+                    android:onClick="goMyAppointmentPage"
                     app:srcCompat="@drawable/booking" />
 
                 <TextView
-                    android:id="@+id/slotText"
+                    android:id="@+id/appointmentText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="50dp"
                     android:fontFamily="@font/yeseva_one"
-                    android:text="Slot"
+                    android:text="Appointment"
                     android:textStyle="bold" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="185dp">
+                android:layout_marginLeft="200dp">
 
                 <ImageView
                     android:id="@+id/goReportBtn"

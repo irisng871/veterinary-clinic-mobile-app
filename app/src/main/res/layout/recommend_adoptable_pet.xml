@@ -7,7 +7,7 @@
     android:background="#ede7de">
 
     <TextView
-        android:id="@+id/myPetHeader"
+        android:id="@+id/adoptablePetListProfileHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,28 +15,18 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="My Pet"
+        android:text="Adoptable Pet List"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/petRecyclerView"
+        android:id="@+id/recommendAdoptablePetRecyclerView"
         android:layout_width="300dp"
-        android:layout_height="540dp"
+        android:layout_height="600dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
-        android:orientation="horizontal"/>
-
-    <Button
-        android:id="@+id/addBtn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="620dp"
-        android:layout_marginStart="290dp"
-        android:backgroundTint="#252E63"
-        android:text="+">
-    </Button>
+        android:orientation="vertical"/>
 
     <include
         android:id="@+id/footer"

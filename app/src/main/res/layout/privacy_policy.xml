@@ -1,6 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#d7dade">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/privacyPolicyHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#252E63"
+        android:fontFamily="@font/yeseva_one"
+        android:padding="15dp"
+        android:text="Privacy Policy"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp" />
+
+    <ImageButton
+        android:id="@+id/backBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30px"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/left_chevron"
+        android:baselineAligned="false"/>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/backBtn">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/privacyPolicy1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="25dp"
+                android:text="Effective Date: 1/10/2024 \n\n At Windsor Animal Hospital Penang, we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, disclose, and protect your information when you use our mobile application."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="190dp"
+                android:layout_marginRight="25dp"
+                android:text="1. Information We Collect \nPersonal Information: When you create an account, book an appointment, or contact us through the app, we may collect personal details such as your name, phone number, email address, and pet information."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="345dp"
+                android:layout_marginRight="25dp"
+                android:text="2. How We Use Your Information \nTo provide and improve our services, including booking appointments and managing pet health records.\n\nTo respond to your inquiries or feedback.\n\nTo comply with legal obligations and protect our legal rights."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="540dp"
+                android:layout_marginRight="25dp"
+                android:text="3. Data Sharing \nService Providers: We may share your data with third-party service providers who assist in operating the app. These providers are obligated to protect your data.\n\nLegal Requirements: We may disclose your information if required by law, such as to comply with a legal process, or to protect our rights or safety.\n\nBusiness Transfers: In the event of a merger, acquisition, or sale of our clinic, your data may be transferred to the new owner, subject to the same Privacy Policy terms."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="885dp"
+                android:layout_marginRight="25dp"
+                android:text="4. Data Security \nWe take reasonable precautions to protect your data from unauthorized access, alteration, or destruction. This includes encryption, firewalls, and secure servers. However, no data transmission over the internet is 100% secure."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1040dp"
+                android:layout_marginRight="25dp"
+                android:text="5. Data Retention \nWe retain your personal information for as long as necessary to provide our services or as required by law. After this, we will securely delete or anonymize your data."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1155dp"
+                android:layout_marginRight="25dp"
+                android:text="6. Your Rights \nAccess and Correction: You can access and update your personal information at any time through the app."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1255dp"
+                android:layout_marginRight="25dp"
+                android:text="7. Changes to the Privacy Policy \nWe reserve the right to update this Privacy Policy at any time. Continued use of the app after changes are made constitutes acceptance of the updated policy."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/privacyPolicy9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1375dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginBottom="25dp"
+                android:text="8. Contact Us \nIf you have any questions or concerns about this Privacy Policy or the handling of your personal data, please contact us at 04-8990055."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

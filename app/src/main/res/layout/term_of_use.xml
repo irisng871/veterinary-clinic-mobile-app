@@ -1,6 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#d7dade">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/termOfUseHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="#252E63"
+        android:fontFamily="@font/yeseva_one"
+        android:padding="15dp"
+        android:text="Term of Use"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp" />
+
+    <ImageButton
+        android:id="@+id/backBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30px"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/left_chevron"
+        android:baselineAligned="false"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/backBtn">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/termOfUse1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="25dp"
+                android:text="1. Acceptance of Terms \nBy using this app, you agree to these Terms of Use and Privacy Policy. If you do not agree, please do not use the app."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="115dp"
+                android:layout_marginRight="25dp"
+                android:text="2. User Accounts \nYou must create an account to use certain features of the app. You are responsible for maintaining the confidentiality of your login credentials."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="235dp"
+                android:layout_marginRight="25dp"
+                android:text="3. Booking Appointments \nAppointment booking through the app is subject to availability. We reserve the right to cancel or reschedule appointments in the event of emergencies or unforeseen circumstances."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="370dp"
+                android:layout_marginRight="25dp"
+                android:text="4. No Guarantee of Same-Day Appointments \nSame-day appointments are not guaranteed. Walk-ins are welcome during regular business hours but may involve a wait time depending on availability."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="505dp"
+                android:layout_marginRight="25dp"
+                android:text="5. Health and Medical Information \nInformation provided in the app is professional veterinary advice, diagnosis, or treatment."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="600dp"
+                android:layout_marginRight="25dp"
+                android:text="6. Cancellation and Rescheduling \nTo cancel or reschedule an appointment, you must call the clinic directly. App cancellations or reschedules are not allowed through the app."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="720dp"
+                android:layout_marginRight="25dp"
+                android:text="7. Payment Terms \nPayments for services, including consultations and treatments, must be made at the clinic after services are provided. No deposit is required for appointments booked through the app."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="855dp"
+                android:layout_marginRight="25dp"
+                android:text="8. Pet Adoption \nAdoption processes and fees are subject to clinic policies. You must visit the clinic or contact us for the most up-to-date information on available pets and adoption costs."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="990dp"
+                android:layout_marginRight="25dp"
+                android:text="9. Emergency Services \nOur emergency services are available anytime by phone or walk-in. The app does not provide direct access to emergency consultations."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1110dp"
+                android:layout_marginRight="25dp"
+                android:text="10. User Responsibilities \nYou agree to use the app in compliance with all applicable laws and regulations. Any misuse or abuse of the app can result in termination of your account."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1235dp"
+                android:layout_marginRight="25dp"
+                android:text="11. Changes to Services and Terms \nWe reserve the right to modify, update, or discontinue any part of the app or these Terms of Use at any time without notice."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1335dp"
+                android:layout_marginRight="25dp"
+                android:text="12. Intellectual Property \nAll content in the app, including text, graphics, logos, and software, is the property of the clinic or its licensors and is protected by intellectual property laws."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1455dp"
+                android:layout_marginRight="25dp"
+                android:text="13. Limitation of Liability \nThe clinic is not liable for any indirect, incidental, or consequential damages arising from the use of the app or the services provided, except in cases of gross negligence or intentional misconduct."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1595dp"
+                android:layout_marginRight="25dp"
+                android:text="14. Data Privacy \nBy using the app, you consent to the collection and use of personal data in accordance with our Privacy Policy."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse15"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1695dp"
+                android:layout_marginRight="25dp"
+                android:text="15. Termination of Service \nWe reserve the right to suspend or terminate your access to the app at our discretion, particularly for violations of these terms or misuse of the app."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/termOfUse16"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="1820dp"
+                android:layout_marginRight="25dp"
+                android:layout_marginBottom="25dp"
+                android:text="16. Governing Law \nThese Terms of Use are governed by and construed in accordance with the laws of Malaysia, without regard to its conflict of law provisions."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>

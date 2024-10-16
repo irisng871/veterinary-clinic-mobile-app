@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <RelativeLayout
+        android:layout_width="210dp"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="Month:"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_centerVertical="true"/>
+
+            <Spinner
+                android:id="@+id/monthSpinner"
+                style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:layout_toRightOf="@id/month"
+                android:layout_marginStart="60dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/spinner_stroke" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/year"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="Year:"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_centerVertical="true"/>
+
+                <Spinner
+                    android:id="@+id/yearSpinner"
+                    style="@style/Widget.AppCompat.DropDownItem.Spinner"
+                    android:layout_width="150dp"
+                    android:layout_height="40dp"
+                    android:layout_toRightOf="@id/year"
+                    android:layout_marginStart="60dp"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/spinner_stroke"/>
+            </RelativeLayout>
+
+        <Button
+            android:id="@+id/okButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="#252E63"
+            android:fontFamily="@font/yeseva_one"
+            android:text="OK"
+            android:textSize="14sp"/>
+    </RelativeLayout>
+</LinearLayout>

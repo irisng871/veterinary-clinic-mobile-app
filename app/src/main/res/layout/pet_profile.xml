@@ -28,8 +28,7 @@
         android:layout_marginTop="30px"
         android:layout_marginBottom="12dp"
         android:background="@drawable/left_chevron"
-        android:baselineAligned="false"
-        android:onClick="goBackMyPetPage"/>
+        android:baselineAligned="false"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -264,23 +263,11 @@
                     android:textSize="14sp" />
 
                 <Button
-                    android:id="@+id/viewMedicalRecordBtn"
-                    android:layout_width="180dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="690dp"
-                    android:layout_marginBottom="30dp"
-                    android:backgroundTint="#252E63"
-                    android:fontFamily="@font/yeseva_one"
-                    android:text="My Medical Record"
-                    android:textSize="14sp" />
-
-                <Button
                     android:id="@+id/deleteBtn"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="750dp"
+                    android:layout_marginTop="690dp"
                     android:layout_marginBottom="30dp"
                     android:backgroundTint="#ff0000"
                     android:fontFamily="@font/yeseva_one"

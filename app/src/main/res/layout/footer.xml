@@ -46,14 +46,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="87dp">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/goPetShelterBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goHomePage"
+                    android:onClick="goRecommendAdoptablePetPage"
                     app:srcCompat="@drawable/pet_house" />
 
                 <TextView
