@@ -86,24 +86,11 @@
         android:textColor="#252E63"
         android:textStyle="bold" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="540dp"
-        android:background="#BFBDBD" />
-
-<!--    <com.google.android.gms.common.SignInButton-->
-<!--        android:id="@+id/googleLogin"-->
-<!--        android:layout_width="200dp"-->
-<!--        android:layout_height="50dp"-->
-<!--        android:layout_centerHorizontal="true"-->
-<!--        android:layout_marginTop="570dp"/>-->
-
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="670dp">
+        android:layout_marginTop="550dp">
 
         <Button
             android:id="@+id/backBtn"

@@ -20,7 +20,7 @@ public class VetAdapter extends RecyclerView.Adapter<VetAdapter.VetViewHolder> {
     private Context context;
     private ArrayList<Vet> vetList;
     private OnVetClickListener onVetClickListener;
-    private int selectedPosition = -1; // Tracks the selected item position
+    private int selectedPosition = -1;
 
     public VetAdapter(Context context, ArrayList<Vet> vetList, OnVetClickListener onVetClickListener) {
         this.context = context;
@@ -39,23 +39,22 @@ public class VetAdapter extends RecyclerView.Adapter<VetAdapter.VetViewHolder> {
     public void onBindViewHolder(@NonNull VetViewHolder holder, int position) {
         Vet vet = vetList.get(position);
 
-        holder.vetNameTextView.setText(vet.getVetName());
+        holder.vetNameTextView.setText(vet.getName());
+        holder.specialtyAreaTextView.setText(vet.getSpecialtyArea());
         Picasso.get().load(vet.getImageUrl()).into(holder.vetImageView);
 
-        // Highlight the selected item
         if (holder.getAdapterPosition() == selectedPosition) {
-            holder.itemView.setBackgroundColor(Color.GRAY);
+            holder.itemView.setBackgroundColor(Color.parseColor("#d4d4d4"));
         }
 
         holder.itemView.setOnClickListener(v -> {
             int clickedPosition = holder.getAdapterPosition();
 
-            // Ensure the position is valid
             if (clickedPosition != RecyclerView.NO_POSITION) {
                 selectedPosition = clickedPosition;
                 notifyDataSetChanged();
                 if (onVetClickListener != null) {
-                    onVetClickListener.onVetClick(vetList.get(clickedPosition).getVetName());
+                    onVetClickListener.onVetClick(vetList.get(clickedPosition).getName());
                 }
             }
         });
@@ -66,20 +65,20 @@ public class VetAdapter extends RecyclerView.Adapter<VetAdapter.VetViewHolder> {
         return vetList.size();
     }
 
-    // ViewHolder class
     public static class VetViewHolder extends RecyclerView.ViewHolder {
 
         TextView vetNameTextView;
+        TextView specialtyAreaTextView;
         ImageView vetImageView;
 
         public VetViewHolder(@NonNull View itemView) {
             super(itemView);
             vetNameTextView = itemView.findViewById(R.id.vetName);
+            specialtyAreaTextView = itemView.findViewById(R.id.specialty_area);
             vetImageView = itemView.findViewById(R.id.vetImage);
         }
     }
 
-    // Interface to handle click events and pass the vet name
     public interface OnVetClickListener {
         void onVetClick(String vetName);
     }

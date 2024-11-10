@@ -22,10 +22,34 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
-                    android:id="@+id/goMyPetBtn"
+                    android:id="@+id/goHomeBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
+                    android:backgroundTint="#ffffff"
+                    android:onClick="goHomePage"
+                    app:srcCompat="@drawable/home" />
+
+                <TextView
+                    android:id="@+id/homeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="50dp"
+                    android:fontFamily="@font/yeseva_one"
+                    android:text="Home"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="70dp">
+
+                <ImageButton
+                    android:id="@+id/goMyPetBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:backgroundTint="#ffffff"
                     android:onClick="goMyPetPage"
                     app:srcCompat="@drawable/pawprint" />
@@ -44,16 +68,15 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="87dp">
+                android:layout_marginLeft="140dp">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/goPetShelterBtn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    android:layout_height="50dp"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goHomePage"
+                    android:onClick="goRecommendAdoptablePetPage"
                     app:srcCompat="@drawable/pet_house" />
 
                 <TextView
@@ -70,7 +93,7 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="185dp">
+                android:layout_marginLeft="220dp">
 
                 <ImageButton
                     android:id="@+id/goCalendarBtn"
@@ -95,7 +118,7 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="280dp">
+                android:layout_marginLeft="290dp">
 
                 <ImageButton
                     android:id="@+id/goProfileBtn"

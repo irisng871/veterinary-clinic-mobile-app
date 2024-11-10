@@ -35,9 +35,17 @@
         <activity android:name=".pet_profile"></activity>
         <activity android:name=".edit_pet_profile"></activity>
         <activity android:name=".calendar"></activity>
-        <activity android:name=".add_schedule"></activity>
+        <activity android:name=".add_schedule1"></activity>
+        <activity android:name=".add_schedule2"></activity>
+        <activity android:name=".edit_schedule"></activity>
         <activity android:name=".booking_select_vet"></activity>
         <activity android:name=".booking"></activity>
+        <activity android:name=".medical_record_details"></activity>
+        <activity android:name=".appointment_history_details"></activity>
+        <activity android:name=".recommend_adoptable_pet"></activity>
+        <activity android:name=".recommend_adoptable_pet_details"></activity>
+        <activity android:name=".filter"></activity>
+        <activity android:name=".ai_chatbot"></activity>
 
         <activity android:name=".privacyPolicy"></activity>
         <activity android:name=".termOfUse"></activity>
@@ -57,6 +65,14 @@
         <activity android:name=".vet_register"></activity>
         <activity android:name=".vet_home"></activity>
         <activity android:name=".vet_profile"></activity>
+        <activity android:name=".vet_my_appointment"></activity>
+        <activity android:name=".vet_appointment_details"></activity>
+        <activity android:name=".vet_my_patient"></activity>
+        <activity android:name=".vet_patient_details"></activity>
+        <activity android:name=".vet_patient_medical_record"></activity>
+        <activity android:name=".vet_patient_medical_record_details"></activity>
+        <activity android:name=".vet_edit_medical_record_details"></activity>
+        <activity android:name=".vet_add_medical_record"></activity>
 
         <meta-data
             android:name="preloaded_fonts"

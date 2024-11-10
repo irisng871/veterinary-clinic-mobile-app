@@ -23,46 +23,17 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/petRecyclerView"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
+        android:layout_height="540dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
         android:orientation="horizontal"/>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="280dp"
-        android:layout_centerHorizontal="true">
-
-        <TextView
-            android:id="@+id/petBreed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Latest Booking"
-            android:textColor="#000000"
-            android:textStyle="bold"
-            android:textSize="20sp" />
-
-        <androidx.core.widget.NestedScrollView
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:fillViewport="true">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/bookingRecyclerView"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"/>
-
-        </androidx.core.widget.NestedScrollView>
-    </RelativeLayout>
 
     <Button
         android:id="@+id/addBtn"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="620dp"
-        android:layout_marginStart="290dp"
+        android:layout_marginStart="310dp"
         android:backgroundTint="#252E63"
         android:text="+">
     </Button>

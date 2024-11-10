@@ -13,8 +13,7 @@ import android.widget.Toast;
 
 public class intro extends AppCompatActivity {
 
-    ImageButton petShelterDialogBox;
-    ImageButton clinicDialogBox;
+    ImageButton petShelterDialogBox, clinicDialogBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +38,7 @@ public class intro extends AppCompatActivity {
         });
     }
 
-    private void showClinicDialogBox() {
+    public void showClinicDialogBox() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.vet_dialog);
 
@@ -47,14 +46,12 @@ public class intro extends AppCompatActivity {
 
         Button yesBtn = dialog.findViewById(R.id.yesBtn);
         Button noBtn = dialog.findViewById(R.id.noBtn);
-
         noBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
-
         yesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,7 +61,7 @@ public class intro extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showCSCDialogBox() {
+    public void showCSCDialogBox() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.vet_staff_security_code);
 
@@ -88,11 +85,10 @@ public class intro extends AppCompatActivity {
                 }
             }
         });
-
         dialog.show();
     }
 
-    private void showPSDialogBox() {
+    public void showPSDialogBox() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.staff_dialog);
 
@@ -117,7 +113,7 @@ public class intro extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showPSSCDialogBox() {
+    public void showPSSCDialogBox() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.vet_staff_security_code);
 

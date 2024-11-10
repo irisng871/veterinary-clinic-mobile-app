@@ -5,10 +5,6 @@ public class AdoptablePet {
     private String name;
     private String imageUrl;
 
-    public AdoptablePet() {
-        // Default constructor required for Firestore
-    }
-
     public AdoptablePet(String id, String name, String imageUrl) {
         this.id = id;
         this.name = name;

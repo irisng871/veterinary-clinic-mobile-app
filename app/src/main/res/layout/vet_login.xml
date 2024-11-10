@@ -121,7 +121,7 @@
         android:layout_marginTop="640dp"
         android:backgroundTint="#d7dade"
         android:fontFamily="@font/yeseva_one"
-        android:onClick="goRegisterPage"
+        android:onClick="goVetRegisterPage"
         android:shadowColor="#000000"
         android:text="Go Register Page"
         android:textColor="#252E63"

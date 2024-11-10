@@ -15,7 +15,7 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="Add Pet"
+        android:text="Add Adoptable Pet"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
@@ -28,8 +28,7 @@
         android:layout_marginTop="30px"
         android:layout_marginBottom="12dp"
         android:background="@drawable/left_chevron"
-        android:baselineAligned="false"
-        android:onClick="goBackAddPet1Page"/>
+        android:baselineAligned="false"/>
 
     <ScrollView
         android:layout_width="match_parent"

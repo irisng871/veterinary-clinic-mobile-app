@@ -22,13 +22,38 @@
                 android:layout_height="wrap_content">
 
                 <ImageButton
+                    android:id="@+id/goHomeBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:backgroundTint="#ffffff"
+                    android:onClick="goHomePage"
+                    app:srcCompat="@drawable/home" />
+
+                <TextView
+                    android:id="@+id/homeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="50dp"
+                    android:fontFamily="@font/yeseva_one"
+                    android:text="Home"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="84dp">
+
+                <ImageButton
                     android:id="@+id/goPatientBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goPatientPage"
-                    app:srcCompat="@drawable/pawprint" />
+                    android:onClick="goMyPatientPage"
+                    app:srcCompat="@drawable/registration" />
 
                 <TextView
                     android:id="@+id/patientText"
@@ -44,52 +69,26 @@
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="100dp">
+                android:layout_marginLeft="169dp">
 
                 <ImageView
-                    android:id="@+id/goSlotBtn"
+                    android:id="@+id/goAppointmentBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_centerHorizontal="true"
                     android:backgroundTint="#ffffff"
-                    android:onClick="goSlotPage"
+                    android:onClick="goMyAppointmentPage"
                     app:srcCompat="@drawable/booking" />
 
                 <TextView
-                    android:id="@+id/slotText"
+                    android:id="@+id/appointmentText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="50dp"
                     android:fontFamily="@font/yeseva_one"
-                    android:text="Slot"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="185dp">
-
-                <ImageView
-                    android:id="@+id/goReportBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_centerHorizontal="true"
-                    android:backgroundTint="#ffffff"
-                    android:onClick="goReportPage"
-                    app:srcCompat="@drawable/seo_report" />
-
-                <TextView
-                    android:id="@+id/reportText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="50dp"
-                    android:fontFamily="@font/yeseva_one"
-                    android:text="Report"
+                    android:text="Appointment"
                     android:textStyle="bold" />
             </RelativeLayout>
 

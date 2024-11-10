@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,37 +38,26 @@ import java.util.Map;
 public class vet_register extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton vetProfileImage;
-
     Uri imageUri;
-
     EditText vetName, vetEmail, vetPhoneNumber, vetSpecialtyArea, vetPassword;
-
-    Button registerBtn;
-
-    FirebaseAuth Auth;
-
+    Button registerBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
+    FirebaseUser firebaseUser;
+    FirebaseStorage storage;
+    StorageReference storageRef;
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        FirebaseUser currentUser = Auth.getCurrentUser();
-//        if (currentUser != null) {
-//            Intent intent = new Intent(getApplicationContext(), vet_home.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//    }
-
-    @SuppressLint("MissingInflatedId")
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vet_register);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         vetProfileImage = findViewById(R.id.profileImage);
         vetName = findViewById(R.id.name);
@@ -75,8 +65,10 @@ public class vet_register extends AppCompatActivity {
         vetPhoneNumber = findViewById(R.id.phoneNumber);
         vetSpecialtyArea = findViewById(R.id.specialtyArea);
         vetPassword = findViewById(R.id.password);
-
         registerBtn = findViewById(R.id.registerBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackLoginPage());
 
         vetProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,38 +89,21 @@ public class vet_register extends AppCompatActivity {
                 password = String.valueOf(vetPassword.getText());
 
                 // check empty
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(vet_register.this, "Please enter your name", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(vet_register.this, "Please enter your email", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(phoneNumber)) {
-                    Toast.makeText(vet_register.this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(specialtyArea)) {
-                    Toast.makeText(vet_register.this, "Please enter an specialty area", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(vet_register.this, "Please enter your password", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(phoneNumber)
+                        || TextUtils.isEmpty(specialtyArea) || TextUtils.isEmpty(password)) {
+                    Toast.makeText(vet_register.this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 // check format
-                if (!name.matches("[a-zA-Z\\s]+")) {
-                    Toast.makeText(vet_register.this, "Name can only contain letters and spaces", Toast.LENGTH_SHORT).show();
+                if (!name.matches("[a-zA-Z\\.\\s]+")) {
+                    Toast.makeText(vet_register.this, "Name can only contain letters, spaces, and dot", Toast.LENGTH_SHORT).show();
                 }
 
                 if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
                     Toast.makeText(vet_register.this, "Invalid email address", Toast.LENGTH_SHORT).show();
+                } else if (!email.endsWith("@vet.com")) {
+                    Toast.makeText(vet_register.this, "Email must end with @vet.com", Toast.LENGTH_SHORT).show();
                 }
 
                 if (!phoneNumber.matches("\\d{10,11}")) {
@@ -136,16 +111,16 @@ public class vet_register extends AppCompatActivity {
                 }
 
                 if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$")) {
-                    Toast.makeText(vet_register.this, "Password must be at least 6 characters long and include uppercase, lowercase, number, and special character.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(vet_register.this, "Min 6 characters (upper, lower, number, special character)"
+                            , Toast.LENGTH_SHORT).show();
                 }
 
-                // create vet with firebase authentication
-                Auth.createUserWithEmailAndPassword(email, password)
+                auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(vet_register.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    FirebaseUser firebaseUser = Auth.getCurrentUser();
+                                    FirebaseUser firebaseUser = auth.getCurrentUser();
                                     generateId(name, email, phoneNumber, specialtyArea, firebaseUser.getUid());
                                 } else {
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -160,7 +135,7 @@ public class vet_register extends AppCompatActivity {
         });
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -175,43 +150,51 @@ public class vet_register extends AppCompatActivity {
         }
     }
 
-    private void generateId(String name, String email, String phoneNumber, String specialtyArea, String authId) {
+    public void generateId(String name, String email, String phoneNumber, String specialtyArea, String id) {
         db.collection("veterinarian")
-                .orderBy("id", Query.Direction.DESCENDING)
-                .limit(1)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            String newId = "VE1";
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String lastId = document.getString("id");
-                                if (lastId != null && lastId.startsWith("VE")) {
-                                    int lastNumber = Integer.parseInt(lastId.substring(2));
-                                    newId = "VE" + (lastNumber + 1);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int maxNumber = 0;
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String lastId = document.getString("id");
+                            if (lastId != null && lastId.startsWith("VE")) {
+                                String numberPart = lastId.substring(2);
+                                try {
+                                    int number = Integer.parseInt(numberPart);
+                                    if (number > maxNumber) {
+                                        maxNumber = number;
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e("ID Parsing Error", "Error parsing vet ID: " + lastId, e);
                                 }
                             }
-                            saveData(authId, newId, name, email, phoneNumber, specialtyArea);
                         }
+
+                        String newId = "VE" + (maxNumber + 1);
+                        Log.d("New Vet ID", newId);
+
+                        saveData(newId, id, name, email, phoneNumber, specialtyArea);
+                    } else {
+                        Log.e("Firestore Error", "Error getting vet documents", task.getException());
                     }
-                });
+                })
+                .addOnFailureListener(e -> Log.e("Firestore Error", "Error retrieving vet data", e));
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -219,104 +202,77 @@ public class vet_register extends AppCompatActivity {
         return "unknown";
     }
 
-    private void saveData(String authId, String id, String name, String email, String phoneNumber, String specialtyArea) {
-        FirebaseUser firebaseUser = Auth.getCurrentUser();
+    public void saveData(String vetId, String id, String name, String email, String phoneNumber, String specialtyArea) {
+        Map<String, Object> vetData = new HashMap<>();
+        vetData.put("id", id);
+        vetData.put("name", name);
+        vetData.put("email", email);
+        vetData.put("phone_number", phoneNumber);
+        vetData.put("specialty_area", specialtyArea);
 
-        if (firebaseUser != null) {
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
+        if (imageUri != null) {
+            String fileExtension = getFileExtension(imageUri);
+            String fileName = "images/" + vetId + "." + fileExtension;
+            StorageReference imageRef = storageRef.child(fileName);
 
-            Map<String, Object> vetData = new HashMap<>();
-            vetData.put("id", id);
-            vetData.put("name", name);
-            vetData.put("email", email);
-            vetData.put("phone_number", phoneNumber);
-            vetData.put("specialty_area", specialtyArea);
+            imageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        vetData.put("image", fileName);
 
-            if (imageUri != null) {
-                // determine file extension
-                String fileExtension = getFileExtension(imageUri);
-                String fileName = "images/" + authId + "." + fileExtension; // Unique file name with extension
-                StorageReference imageRef = storageRef.child(fileName);
+                        db.collection("veterinarian")
+                                .add(vetData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(vet_register.this, "Vet data saved.", Toast.LENGTH_SHORT).show();
 
-                // upload the image
-                imageRef.putFile(imageUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            // Save image name to vetData
-                            vetData.put("image_name", fileName);
+                                    TextInputEditText vetName = findViewById(R.id.name);
+                                    TextInputEditText vetEmail = findViewById(R.id.email);
+                                    TextInputEditText vetPhoneNumber = findViewById(R.id.phoneNumber);
+                                    TextInputEditText vetSpecialtyArea = findViewById(R.id.password);
+                                    TextInputEditText vetPassword = findViewById(R.id.password);
 
-                            // Save vet data to Firestore
-                            db.collection("veterinarian")
-                                    .document(authId)
-                                    .set(vetData)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(vet_register.this, "Vet data saved.", Toast.LENGTH_SHORT).show();
+                                    vetProfileImage.setImageResource(R.drawable.ic_launcher_foreground);
+                                    vetName.getText().clear();
+                                    vetEmail.getText().clear();
+                                    vetPhoneNumber.getText().clear();
+                                    vetSpecialtyArea.getText().clear();
+                                    vetPassword.getText().clear();
 
-                                        // clear text input
-                                        TextInputEditText nameText = findViewById(R.id.name);
-                                        TextInputEditText emailText = findViewById(R.id.email);
-                                        TextInputEditText phoneNumberText = findViewById(R.id.phoneNumber);
-                                        TextInputEditText specialtyAreaText = findViewById(R.id.specialtyArea);
-                                        TextInputEditText passwordText = findViewById(R.id.password);
-
-                                        vetProfileImage.setImageResource(R.drawable.ic_launcher_foreground);
-                                        nameText.getText().clear();
-                                        emailText.getText().clear();
-                                        phoneNumberText.getText().clear();
-                                        passwordText.getText().clear();
-                                        specialtyAreaText.getText().clear();
-
-                                        // go home
-                                        Intent intent = new Intent(getApplicationContext(), vet_home.class);
-                                        startActivity(intent);
-                                        finish();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(vet_register.this, "Failed to save vet data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                    });
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(vet_register.this, "Failed to upload image: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-            } else {
-                // No image selected, save data without image
-                db.collection("veterinarian")
-                        .document(authId)
-                        .set(vetData)
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(vet_register.this, "Vet data saved.", Toast.LENGTH_SHORT).show();
-
-                            // clear text input
-                            TextInputEditText nameText = findViewById(R.id.name);
-                            TextInputEditText emailText = findViewById(R.id.email);
-                            TextInputEditText phoneNumberText = findViewById(R.id.phoneNumber);
-                            TextInputEditText specialtyAreaText = findViewById(R.id.specialtyArea);
-                            TextInputEditText passwordText = findViewById(R.id.password);
-
-                            vetProfileImage.setImageResource(R.drawable.ic_launcher_foreground);
-                            nameText.getText().clear();
-                            emailText.getText().clear();
-                            phoneNumberText.getText().clear();
-                            passwordText.getText().clear();
-                            specialtyAreaText.getText().clear();
-
-                            // go home
-                            Intent intent = new Intent(getApplicationContext(), vet_home.class);
-                            startActivity(intent);
-                            finish();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(vet_register.this, "Failed to save vet data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-            }
+                                    Intent intent = new Intent(getApplicationContext(), vet_home.class);
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(vet_register.this, "Failed to save vet data: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(vet_register.this, "Failed to upload image: " + e.getMessage(), Toast.LENGTH_LONG).show());
         } else {
-            Toast.makeText(vet_register.this, "No authenticated vet found.", Toast.LENGTH_SHORT).show();
+            // No image selected, save data without image
+            db.collection("veterinarian")
+                    .add(vetData)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(vet_register.this, "Vet data saved.", Toast.LENGTH_SHORT).show();
+
+                        TextInputEditText vetName = findViewById(R.id.name);
+                        TextInputEditText vetEmail = findViewById(R.id.email);
+                        TextInputEditText vetPhoneNumber = findViewById(R.id.phoneNumber);
+                        TextInputEditText vetSpecialtyArea = findViewById(R.id.password);
+                        TextInputEditText vetPassword = findViewById(R.id.password);
+
+                        vetProfileImage.setImageResource(R.drawable.ic_launcher_foreground);
+                        vetName.getText().clear();
+                        vetEmail.getText().clear();
+                        vetPhoneNumber.getText().clear();
+                        vetSpecialtyArea.getText().clear();
+                        vetPassword.getText().clear();
+
+                        Intent intent = new Intent(getApplicationContext(), vet_home.class);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(vet_register.this, "Failed to save vet data: " + e.getMessage(), Toast.LENGTH_LONG).show());
         }
     }
 
-    public void goBackLoginPage(View view){
-        Intent intent = new Intent(this, vet_login.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackLoginPage(){
+        finish();
     }
 }

@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,8 +30,7 @@ public class my_pet extends AppCompatActivity {
     RecyclerView petRecyclerView;
     PetAdapter petAdapter;
     List<Pet> petList;
-
-    FirebaseAuth Auth;
+    FirebaseAuth auth;
     FirebaseFirestore db;
     FirebaseStorage storage;
 
@@ -38,12 +39,12 @@ public class my_pet extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.my_pet);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
 
         petRecyclerView = findViewById(R.id.petRecyclerView);
-        petRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        petRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         petList = new ArrayList<>();
         petAdapter = new PetAdapter(this, petList);
@@ -52,18 +53,15 @@ public class my_pet extends AppCompatActivity {
         loadPets();
 
         addBtn = findViewById(R.id.addBtn);
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), add_pet1.class);
-                startActivity(intent);
-                finish();
-            }
+        addBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), add_pet1.class);
+            startActivity(intent);
+            finish();
         });
     }
 
-    private void loadPets() {
-        String userId = Auth.getCurrentUser().getUid();
+    public void loadPets() {
+        String userId = auth.getCurrentUser().getUid();
 
         db.collection("pet_owner").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -83,25 +81,12 @@ public class my_pet extends AppCompatActivity {
                                                 String petId = petDocument.getString("id");
                                                 String petName = petDocument.getString("name");
 
-                                                Log.d("my_pet", "Pet ID: " + petId + ", Name: " + petName);
+                                                Pet pet = new Pet(petId, petName, null, petOwnerId);
+                                                petList.add(pet);
 
-                                                // Loop through possible extensions to find an image
-                                                String[] possibleExtensions = {"png", "jpg"};
-                                                for (String extension : possibleExtensions) {
-                                                    String fileName = "images/" + petOwnerId + "/" + petId + "." + extension;
-                                                    StorageReference imageRef = storage.getReference().child(fileName);
-
-                                                    // Load image URI and add pet to the list
-                                                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                                        petList.add(new Pet(petId, petName, uri.toString()));
-                                                        // Notify the adapter that data has changed
-                                                        petAdapter.notifyDataSetChanged();
-                                                    }).addOnFailureListener(e -> {
-                                                        Log.e("my_pet", "Error getting image URL for pet: " + petName + " with extension: " + extension, e);
-                                                    });
-                                                }
+                                                loadPetImage(pet);
                                             }
-
+                                            petAdapter.notifyDataSetChanged();
                                         } else {
                                             Log.d("my_pet", "No pets found for this owner.");
                                         }
@@ -114,5 +99,53 @@ public class my_pet extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> Log.e("my_pet", "Error getting pet_owner: ", e));
+    }
+
+    public void loadPetImage(Pet pet) {
+        String petOwnerId = pet.getPetOwnerId();
+        String petId = pet.getId();
+
+        String[] possibleExtensions = {"png", "jpg"};
+        for (String extension : possibleExtensions) {
+            String fileName = "images/" + petOwnerId + "/" + petId + "." + extension;
+            StorageReference imageRef = storage.getReference().child(fileName);
+
+            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                pet.setImageUrl(uri.toString());
+                petAdapter.notifyDataSetChanged();
+            }).addOnFailureListener(e -> {
+                Log.e("my_pet", "Error getting image URL for pet: " + pet.getName() + " with extension: " + extension, e);
+            });
+        }
+    }
+
+    public void goHomePage(View view) {
+        Intent intent = new Intent(this, home.class);
+        ImageButton goHomeBtn = findViewById(R.id.goHomeBtn);
+        startActivity(intent);
+    }
+
+    public void goMyPetPage(View view) {
+        Intent intent = new Intent(this, my_pet.class);
+        ImageButton goMyPetBtn = findViewById(R.id.goMyPetBtn);
+        startActivity(intent);
+    }
+
+    public void goRecommendAdoptablePetPage(View view) {
+        Intent intent = new Intent(this, recommend_adoptable_pet.class);
+        ImageButton goPetShelterBtn = findViewById(R.id.goPetShelterBtn);
+        startActivity(intent);
+    }
+
+    public void goCalendarPage(View view) {
+        Intent intent = new Intent(this, calendar.class);
+        ImageButton goCalendarBtn = findViewById(R.id.goCalendarBtn);
+        startActivity(intent);
+    }
+
+    public void goProfilePage(View view) {
+        Intent intent = new Intent(this, my_profile.class);
+        ImageButton goProfileBtn = findViewById(R.id.goProfileBtn);
+        startActivity(intent);
     }
 }

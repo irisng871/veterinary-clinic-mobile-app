@@ -32,17 +32,11 @@ import android.util.Log;
 public class staff_petfolio extends AppCompatActivity {
 
     Button addBtn;
-
     RecyclerView petRecyclerView;
-
     AdoptablePetAdapter adoptablePetAdapter;
-
     List<AdoptablePet> petList;
-
-    FirebaseAuth Auth;
-
+    FirebaseAuth auth;
     FirebaseFirestore db;
-
     FirebaseStorage storage;
 
     @Override
@@ -50,7 +44,7 @@ public class staff_petfolio extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_petfolio);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
 
@@ -74,7 +68,7 @@ public class staff_petfolio extends AppCompatActivity {
         });
     }
 
-    private void loadPets() {
+    public void loadPets() {
         db.collection("adoptable_pet")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -109,14 +103,11 @@ public class staff_petfolio extends AppCompatActivity {
                                         petRecyclerView.getAdapter().notifyDataSetChanged();
                                     }).addOnFailureListener(e2 -> {
                                         Log.e("MyPetActivity", "Error getting image URL for pet: " + petName + " in both jpg and png formats.", e2);
-                                        // Add pet without image URL if both jpg and png fail (you can handle null in the adapter)
                                         petList.add(new AdoptablePet(petId, petName, null));
                                         petRecyclerView.getAdapter().notifyDataSetChanged();
                                     });
                                 });
                             }
-
-                            // Set up the RecyclerView with a GridLayoutManager
                             petRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
                             petRecyclerView.setAdapter(new AdoptablePetAdapter(this, petList));
 
@@ -127,5 +118,20 @@ public class staff_petfolio extends AppCompatActivity {
                         Log.e("MyPetActivity", "Error getting pets: ", task.getException());
                     }
                 });
+    }
+
+    public void goHomePage(View view){
+        Intent intent = new Intent(this, staff_home.class);
+        startActivity(intent);
+    }
+
+    public void goPetfolioPage(View view){
+        Intent intent = new Intent(this, staff_petfolio.class);
+        startActivity(intent);
+    }
+
+    public void goProfilePage(View view){
+        Intent intent = new Intent(this, staff_profile.class);
+        startActivity(intent);
     }
 }

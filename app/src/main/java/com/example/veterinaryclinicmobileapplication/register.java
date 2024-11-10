@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -38,38 +39,26 @@ import java.util.Map;
 public class register extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton userProfileImage;
-
     Uri imageUri;
-
     EditText userName, userEmail, userPhoneNumber, userPassword, userEmergencyContact, userEmergencyPhoneNumber;
-
-    Button registerBtn;
-
+    Button registerBtn, backBtn;
     CheckBox ppCheckBox, touCheckBox;
-
-    FirebaseAuth Auth;
-
+    FirebaseAuth auth;
     FirebaseFirestore db;
-
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        FirebaseUser currentUser = Auth.getCurrentUser();
-//        if (currentUser != null) {
-//            Intent intent = new Intent(getApplicationContext(), home.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//    }
+    FirebaseUser firebaseUser;
+    FirebaseStorage storage;
+    StorageReference storageRef;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        firebaseUser = auth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         userProfileImage = findViewById(R.id.profileImage);
         userName = findViewById(R.id.name);
@@ -82,6 +71,9 @@ public class register extends AppCompatActivity {
         ppCheckBox = findViewById(R.id.ppCheckBox);
         touCheckBox = findViewById(R.id.touCheckBox);
         registerBtn = findViewById(R.id.registerBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackIntroPage());
 
         userProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,33 +95,10 @@ public class register extends AppCompatActivity {
                 emergencyPhoneNumber = String.valueOf(userEmergencyPhoneNumber.getText());
 
                 // check empty
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(register.this, "Please enter your name", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(register.this, "Please enter your email", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(phoneNumber)) {
-                    Toast.makeText(register.this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(register.this, "Please enter your password", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(emergencyContact)) {
-                    Toast.makeText(register.this, "Please enter an emergency contact", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(emergencyPhoneNumber)) {
-                    Toast.makeText(register.this, "Please enter an emergency phone number", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(phoneNumber)
+                        || TextUtils.isEmpty(password) || TextUtils.isEmpty(emergencyContact)
+                        || TextUtils.isEmpty(emergencyPhoneNumber)) {
+                    Toast.makeText(register.this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -147,16 +116,16 @@ public class register extends AppCompatActivity {
                 }
 
                 if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$")) {
-                    Toast.makeText(register.this, "Password must be at least 6 characters long and include uppercase, lowercase, number, and special character.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(register.this, "Min 6 characters (upper, lower, number, special character)", Toast.LENGTH_SHORT).show();
                 }
 
                 // check emergency contact
                 if (name.matches(emergencyContact)) {
-                    Toast.makeText(register.this, "Name and emergency contact must be different.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(register.this, "Name and emergency contact must be different", Toast.LENGTH_SHORT).show();
                 }
 
                 if (phoneNumber.matches(emergencyPhoneNumber)) {
-                    Toast.makeText(register.this, "Phone number and emergency phone number must be different.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(register.this, "Phone number and emergency phone number must be different", Toast.LENGTH_SHORT).show();
                 }
 
                 // tick checkbox
@@ -165,13 +134,12 @@ public class register extends AppCompatActivity {
                     return;
                 }
 
-                // create user with firebase authentication
-                Auth.createUserWithEmailAndPassword(email, password)
+                auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(register.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    FirebaseUser firebaseUser = Auth.getCurrentUser();
+                                    FirebaseUser firebaseUser = auth.getCurrentUser();
                                     generateId(name, email, phoneNumber, emergencyContact, emergencyPhoneNumber, firebaseUser.getUid());
                                 } else {
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -186,7 +154,7 @@ public class register extends AppCompatActivity {
         });
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -201,40 +169,53 @@ public class register extends AppCompatActivity {
         }
     }
 
-    private void generateId(String name, String email, String phoneNumber, String emergencyContact, String emergencyPhoneNumber, String authId) {
+    public void generateId(String name, String email, String phoneNumber, String emergencyContact, String emergencyPhoneNumber, String authId) {
         db.collection("pet_owner")
-                .orderBy("id", Query.Direction.DESCENDING)
-                .limit(1)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        String newId = "PO1";
+                        int maxNumber = 0; // Track highest number found
+
+                        // Loop through each document to find highest ID
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String lastId = document.getString("id");
                             if (lastId != null && lastId.startsWith("PO")) {
-                                int lastNumber = Integer.parseInt(lastId.substring(2));
-                                newId = "PO" + (lastNumber + 1);
+                                String numberPart = lastId.substring(2);
+                                try {
+                                    int number = Integer.parseInt(numberPart);
+                                    // Update maxNumber if this number is greater
+                                    if (number > maxNumber) {
+                                        maxNumber = number;
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e("ID Parsing Error", "Error parsing ID: " + lastId, e);
+                                }
                             }
                         }
+
+                        String newId = "PO" + (maxNumber + 1);
                         saveData(authId, newId, name, email, phoneNumber, emergencyContact, emergencyPhoneNumber);
+                    } else {
+                        Log.e("Firestore Error", "Error getting documents", task.getException());
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore Error", "Error retrieving data", e);
                 });
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
-                case "image/jpeg":
+                case "image/jpg":
                     return "jpg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpeg":
+                    return "jpeg";
                 default:
                     return "unknown";
             }
@@ -242,13 +223,8 @@ public class register extends AppCompatActivity {
         return "unknown";
     }
 
-    private void saveData(String authId, String id, String name, String email, String phoneNumber, String emergencyContact, String emergencyPhoneNumber) {
-        FirebaseUser firebaseUser = Auth.getCurrentUser();
-
+    public void saveData(String authId, String id, String name, String email, String phoneNumber, String emergencyContact, String emergencyPhoneNumber) {
         if (firebaseUser != null) {
-            FirebaseStorage storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReference();
-
             Map<String, Object> userData = new HashMap<>();
             userData.put("id", id);
             userData.put("name", name);
@@ -258,18 +234,15 @@ public class register extends AppCompatActivity {
             userData.put("emergency_phone_number", emergencyPhoneNumber);
 
             if (imageUri != null) {
-                // determine file extension
                 String fileExtension = getFileExtension(imageUri);
                 String fileName = "images/" + authId + "." + fileExtension;
                 StorageReference imageRef = storageRef.child(fileName);
 
-                // upload the image
+                // upload image
                 imageRef.putFile(imageUri)
                         .addOnSuccessListener(taskSnapshot -> {
-                            // Save image name to userData
-                            userData.put("image_name", fileName);
+                            userData.put("image", fileName);
 
-                            // Save user data to Firestore
                             db.collection("pet_owner")
                                     .document(authId)
                                     .set(userData)
@@ -354,9 +327,7 @@ public class register extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void goBackIntroPage(View view){
-        Intent intent = new Intent(this, intro.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackIntroPage(){
+        finish();
     }
 }

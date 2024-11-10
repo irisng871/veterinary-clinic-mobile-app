@@ -1,5 +1,6 @@
 package com.example.veterinaryclinicmobileapplication;
 
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,13 +22,9 @@ import com.google.firebase.storage.StorageReference;
 public class staff_pet_profile extends AppCompatActivity {
 
     TextView petType, petBreed, petName, petGender, petWeight, petEstimatedBirthday, petEstimatedAge, petNeutered, petPersonality, petHealthStatus, petAllergy, petHistory;
-
-    ImageButton profileImageButton;
-
+    ImageButton profileImageButton, backBtn;
     Button editBtn, deleteBtn;
-
     FirebaseFirestore db;
-
     FirebaseStorage storage;
 
     @Override
@@ -41,7 +38,7 @@ public class staff_pet_profile extends AppCompatActivity {
         petType = findViewById(R.id.type);
         petBreed = findViewById(R.id.breed);
         petName = findViewById(R.id.name);
-        petGender = findViewById(R.id.petGender);
+        petGender = findViewById(R.id.gender);
         petWeight = findViewById(R.id.weight);
         petEstimatedBirthday = findViewById(R.id.estimatedBirthday);
         petEstimatedAge = findViewById(R.id.estimatedAge);
@@ -53,6 +50,9 @@ public class staff_pet_profile extends AppCompatActivity {
         profileImageButton = findViewById(R.id.profileImage);
         editBtn = findViewById(R.id.editBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackStaffPetfolioPage());
 
         Intent intent = getIntent();
         String petId = intent.getStringExtra("id");
@@ -79,7 +79,7 @@ public class staff_pet_profile extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deletePet(petId);
+                showDeletionDialogBox(petId);
             }
         });
     }
@@ -130,7 +130,6 @@ public class staff_pet_profile extends AppCompatActivity {
                                 Glide.with(this).load(uri).into(profileImageButton);
                             }).addOnFailureListener(e2 -> {
                                 Log.e("staff_pet_profile", "Error loading image in both jpg and png formats.", e2);
-                                // Handle case where both formats fail (optional: show a placeholder)
                             });
                         });
 
@@ -139,6 +138,33 @@ public class staff_pet_profile extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Error getting pet details", Toast.LENGTH_SHORT).show());
+    }
+
+    public void showDeletionDialogBox(String petId) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.deletion);
+
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.frame);
+
+        Button yesBtn = dialog.findViewById(R.id.yesBtn);
+        Button noBtn = dialog.findViewById(R.id.noBtn);
+
+        noBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        yesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                deletePet(petId);
+            }
+        });
+
+        dialog.show();
     }
 
     public void deletePet(String petId) {
@@ -179,7 +205,7 @@ public class staff_pet_profile extends AppCompatActivity {
                 });
     }
 
-    private void deletePetDocument(String petId) {
+    public void deletePetDocument(String petId) {
         db.collection("adoptable_pet").document(petId).delete()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Pet deleted successfully", Toast.LENGTH_SHORT).show();
@@ -193,9 +219,7 @@ public class staff_pet_profile extends AppCompatActivity {
     }
 
 
-    public void goBackStaffPetfolioPage(View view){
-        Intent intent = new Intent(this, staff_petfolio.class);
-        ImageButton backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackStaffPetfolioPage(){
+        finish();
     }
 }

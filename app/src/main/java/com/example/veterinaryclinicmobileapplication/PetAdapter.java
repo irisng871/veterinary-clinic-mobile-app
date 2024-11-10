@@ -49,7 +49,6 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
             intent.putExtra("id", pet.getId());
             intent.putExtra("petOwnerId", pet.getPetOwnerId());
 
-            // Log the pet ID
             Log.d("PetAdapter", "Passing pet ID: " + pet.getId());
 
             context.startActivity(intent);

@@ -33,7 +33,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="620dp"
-        android:layout_marginStart="290dp"
+        android:layout_marginStart="310dp"
         android:backgroundTint="#252E63"
         android:text="+">
     </Button>
