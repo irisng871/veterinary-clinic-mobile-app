@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,12 +20,13 @@ import java.util.ArrayList;
 public class booking_select_vet extends AppCompatActivity implements VetAdapter.OnVetClickListener {
 
     Button nxtBtn;
+    ImageButton backBtn;
     RecyclerView vetRecyclerView;
     VetAdapter vetAdapter;
     FirebaseFirestore db;
     FirebaseStorage storage;
     ArrayList<Vet> vetList;
-    String selectedVetName = null; // To store the selected vet name
+    String selectedVetName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,9 @@ public class booking_select_vet extends AppCompatActivity implements VetAdapter.
         storage = FirebaseStorage.getInstance();
 
         nxtBtn = findViewById(R.id.nxtBtn);
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goHomePage());
+
         vetRecyclerView = findViewById(R.id.vetRecyclerView);
         vetRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
 
@@ -43,33 +48,35 @@ public class booking_select_vet extends AppCompatActivity implements VetAdapter.
 
         nxtBtn.setOnClickListener(v -> {
             if (selectedVetName != null) {
-                Log.d("SelectedVet", "Selected veterinarian: " + selectedVetName); // Debug log
+                Log.d("SelectedVet", "Selected veterinarian: " + selectedVetName);
                 Intent intent = new Intent(booking_select_vet.this, booking.class);
                 intent.putExtra("selectedVetName", selectedVetName);
                 startActivity(intent);
             } else {
-                Toast.makeText(booking_select_vet.this, "Please select a veterinarian.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(booking_select_vet.this, "Please select a veterinarian", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void fetchAllVets() {
+    public void fetchAllVets() {
         db.collection("veterinarian").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     int totalVets = queryDocumentSnapshots.size();
-                    final int[] fetchedCount = {0}; // Counter for fetched images
+                    final int[] fetchedCount = {0};
 
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        String vetId = document.getId(); // Get the document ID
+                        String vetId = document.getString("id");
                         String vetName = document.getString("name");
+                        String vetSpecialtyArea = document.getString("specialty_area");
                         String[] possibleExtensions = {"png", "jpg"};
 
+                        // Loop to check the image existence
                         for (String extension : possibleExtensions) {
                             String fileName = "images/" + vetId + "." + extension;
                             StorageReference imageRef = storage.getReference().child(fileName);
 
                             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                vetList.add(new Vet(vetId, vetName, uri.toString()));
+                                vetList.add(new Vet(vetId, vetName, uri.toString(), vetSpecialtyArea));
                                 fetchedCount[0]++; // Increment fetched count
                                 if (fetchedCount[0] == totalVets * possibleExtensions.length) {
                                     vetAdapter = new VetAdapter(this, vetList, this);
@@ -93,27 +100,10 @@ public class booking_select_vet extends AppCompatActivity implements VetAdapter.
 
     @Override
     public void onVetClick(String vetName) {
-        selectedVetName = vetName; // Store the selected vet name when clicked
+        selectedVetName = vetName;
     }
 
-    // Navigation buttons
-    public void goMyPetPage(View view) {
-        Intent intent = new Intent(this, my_pet.class);
-        startActivity(intent);
-    }
-
-    public void goHomePage(View view) {
-        Intent intent = new Intent(this, home.class);
-        startActivity(intent);
-    }
-
-    public void goCalendarPage(View view) {
-        Intent intent = new Intent(this, calendar.class);
-        startActivity(intent);
-    }
-
-    public void goProfilePage(View view) {
-        Intent intent = new Intent(this, my_profile.class);
-        startActivity(intent);
+    public void goHomePage() {
+        finish();
     }
 }

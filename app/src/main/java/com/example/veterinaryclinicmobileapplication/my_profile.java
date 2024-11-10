@@ -34,30 +34,25 @@ import java.util.Map;
 public class my_profile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton userProfileImage;
-
     Uri imageUri;
-
     EditText userName, userEmail, userPhoneNumber, userEmergencyContact, userEmergencyPhoneNumber;
-
-    Button saveBtn;
-
-    FirebaseAuth Auth;
-
+    Button saveBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
-
-    FirebaseUser user;
+    FirebaseUser firebaseUser;
+    FirebaseStorage storage;
+    StorageReference storageRef;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.my_profile);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        user = Auth.getCurrentUser();
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
+        firebaseUser = auth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         userProfileImage = findViewById(R.id.profileImage);
         userName = findViewById(R.id.name);
@@ -66,124 +61,120 @@ public class my_profile extends AppCompatActivity {
         userEmergencyContact = findViewById(R.id.emergencyContact);
         userEmergencyPhoneNumber = findViewById(R.id.emergencyPhoneNumber);
         saveBtn = findViewById(R.id.saveBtn);
+        backBtn = findViewById(R.id.backBtn);
 
-        userProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
+        backBtn.setOnClickListener(v -> goBackHomePage());
 
-        if (user == null) {
+        userProfileImage.setOnClickListener(v -> openGallery());
+
+        if (firebaseUser == null) {
             Intent intent = new Intent(my_profile.this, login.class);
             startActivity(intent);
             finish();
         } else {
-            db.collection("pet_owner")
-                    .document(user.getUid())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    String name = document.getString("name");
-                                    String email = document.getString("email");
-                                    String phoneNumber = document.getString("phone_number");
-                                    String emergencyContact = document.getString("emergency_contact");
-                                    String emergencyPhoneNumber = document.getString("emergency_phone_number");
-
-                                    userName.setText(name);
-                                    userEmail.setText(email);
-                                    userPhoneNumber.setText(phoneNumber);
-                                    userEmergencyContact.setText(emergencyContact);
-                                    userEmergencyPhoneNumber.setText(emergencyPhoneNumber);
-
-                                    String id = user.getUid();
-
-                                    String[] possibleExtensions = {"jpg", "png"};
-
-                                    for (String extension : possibleExtensions) {
-                                        String fileName = "images/" + id + "." + extension;
-                                        StorageReference imageRef = storageRef.child(fileName);
-
-                                        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                            Picasso.get().load(uri).into(userProfileImage);
-                                        }).addOnFailureListener(exception -> {
-                                            // Log or handle the failure silently; continue to try the next extension
-                                        });
-                                    }
-                                } else {
-                                    Toast.makeText(my_profile.this, "Document does not exist", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(my_profile.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+            loadUserData();
         }
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newName = ((TextInputEditText) findViewById(R.id.name)).getText().toString();
-                String newPhoneNumber = ((TextInputEditText) findViewById(R.id.phoneNumber)).getText().toString();
-                String newEmergencyContact = ((TextInputEditText) findViewById(R.id.emergencyContact)).getText().toString();
-                String newEmergencyPhoneNumber = ((TextInputEditText) findViewById(R.id.emergencyPhoneNumber)).getText().toString();
+        saveBtn.setOnClickListener(v -> {
+            String newName = userName.getText().toString();
+            String newPhoneNumber = userPhoneNumber.getText().toString();
+            String newEmergencyContact = userEmergencyContact.getText().toString();
+            String newEmergencyPhoneNumber = userEmergencyPhoneNumber.getText().toString();
 
-                updateUserData (newName, newPhoneNumber, newEmergencyContact, newEmergencyPhoneNumber);
-            }
+            updateUserData(newName, newPhoneNumber, newEmergencyContact, newEmergencyPhoneNumber);
         });
     }
 
-    private void openGallery() {
+    public void loadUserData() {
+        db.collection("pet_owner")
+                .document(firebaseUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            userName.setText(document.getString("name"));
+                            userEmail.setText(document.getString("email"));
+                            userPhoneNumber.setText(document.getString("phone_number"));
+                            userEmergencyContact.setText(document.getString("emergency_contact"));
+                            userEmergencyPhoneNumber.setText(document.getString("emergency_phone_number"));
+
+                            loadProfileImage(firebaseUser.getUid());
+                        } else {
+                            Toast.makeText(my_profile.this, "Document does not exist", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(my_profile.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void loadProfileImage(String userId) {
+        String[] possibleExtensions = {"jpg", "png", "jpeg"};
+
+        for (String extension : possibleExtensions) {
+            String fileName = "images/" + userId + "." + extension;
+            StorageReference imageRef = storageRef.child(fileName);
+
+            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                Picasso.get().load(uri).into(userProfileImage);
+            }).addOnFailureListener(exception -> {
+                Log.e("ImageLoad", "Failed to load image with extension: " + extension);
+            });
+        }
+    }
+
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             userProfileImage.setImageURI(imageUri);
 
-            if (user != null) {
-                String id = user.getUid();
-                String fileExtension = getFileExtension(imageUri);
-                String fileName = "images/" + id + "." + fileExtension;
-                StorageReference imageRef = storageRef.child(fileName);
-
-                imageRef.putFile(imageUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            Toast.makeText(my_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(my_profile.this, "Failed to update profile image", Toast.LENGTH_SHORT).show();
-                        });
+            if (firebaseUser != null) {
+                uploadProfileImage(firebaseUser.getUid());
             }
         }
     }
 
-    private String getFileExtension(Uri uri) {
+    public void uploadProfileImage(String userId) {
+        if (imageUri == null) {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fileExtension = getFileExtension(imageUri);
+        String fileName = "images/" + userId + "." + fileExtension;
+        StorageReference imageRef = storageRef.child(fileName);
+
+        imageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    Toast.makeText(my_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                    loadProfileImage(userId);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(my_profile.this, "Failed to update profile image", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
+                    return "jpeg";
+                case "image/jpg":
                     return "jpg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
                 default:
                     return "unknown";
             }
@@ -191,10 +182,10 @@ public class my_profile extends AppCompatActivity {
         return "unknown";
     }
 
-    public void updateUserData (String newName, String newPhoneNumber, String newEmergencyContact, String newEmergencyPhoneNumber) {
-        if (user != null) {
+    public void updateUserData(String newName, String newPhoneNumber, String newEmergencyContact, String newEmergencyPhoneNumber) {
+        if (firebaseUser != null) {
             DocumentReference documentReference = db.collection("pet_owner")
-                    .document(user.getUid());
+                    .document(firebaseUser.getUid());
 
             Map<String, Object> updatedData = new HashMap<>();
             updatedData.put("name", newName);
@@ -203,22 +194,17 @@ public class my_profile extends AppCompatActivity {
             updatedData.put("emergency_phone_number", newEmergencyPhoneNumber);
 
             documentReference.update(updatedData)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(my_profile.this, "New data updated successfully", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(my_profile.this, "Failed to update new data", Toast.LENGTH_LONG).show();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(my_profile.this, "New data updated successfully", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(my_profile.this, "Failed to update new data", Toast.LENGTH_LONG).show();
                         }
                     });
         }
     }
 
-    public void goBackHomePage(View view){
-        Intent intent = new Intent(this, home.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackHomePage() {
+        finish();
     }
 }

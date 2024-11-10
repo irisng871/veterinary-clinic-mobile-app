@@ -13,7 +13,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,31 +26,25 @@ import java.util.Calendar;
 public class staff_add_pet2 extends AppCompatActivity {
 
     Uri imageUri;
-
     EditText petName, petWeight;
-
-    String selectedType, selectedBreed;
-
+    String type, breed;
     String selectedGender, selectedNeutered;
-
     ImageButton pickDate;
-
     TextInputEditText petEstimatedBirthday, petEstimatedAge;
-
     Button nxtBtn;
-
+    ImageButton backBtn;
     Spinner petGender, petNeutered;
-
     ArrayAdapter<String> adapterForPetGender, adapterForPetNeutered;
-
     FirebaseFirestore db;
-
     FirebaseStorage storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_add_pet2);
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         petName = findViewById(R.id.name);
         petGender = findViewById(R.id.selectPetGender);
@@ -61,10 +54,39 @@ public class staff_add_pet2 extends AppCompatActivity {
         petEstimatedAge = findViewById(R.id.estimatedAge);
         petNeutered = findViewById(R.id.selectPetNeutered);
         nxtBtn = findViewById(R.id.nxtBtn);
+        backBtn = findViewById(R.id.backBtn);
 
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        backBtn.setOnClickListener(v -> goBackAddPet1Page());
 
+        Intent intent = getIntent();
+        String imageUriString = intent.getStringExtra("image");
+        if (imageUriString != null) {
+            imageUri = Uri.parse(imageUriString);
+        }
+
+        type = intent.getStringExtra("type");
+        breed = intent.getStringExtra("breed");
+
+        setupSpinners();
+
+        pickDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMonthYearPicker();
+            }
+        });
+
+        nxtBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (checkValidation()) {
+                    passToStaffAddPet3();
+                }
+            }
+        });
+    }
+
+    public void setupSpinners() {
         String[] genderSelectionOptions = {"Choose the pet gender", "male", "female"};
         adapterForPetGender = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, genderSelectionOptions);
         adapterForPetGender.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -96,134 +118,64 @@ public class staff_add_pet2 extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-        pickDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDatePicker();
-            }
-        });
-
-        nxtBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name, weight, estimatedBirthday, estimatedAge;
-
-                name = String.valueOf(petName.getText());
-                weight = String.valueOf(petWeight.getText());
-                estimatedBirthday = String.valueOf(petEstimatedBirthday.getText());
-                estimatedAge = String.valueOf(petEstimatedAge.getText());
-
-                String gender = selectedGender;
-                String neutered = selectedNeutered;
-
-                Intent intent = getIntent();
-                String imageUriString = intent.getStringExtra("image");
-                if (imageUriString != null) {
-                    imageUri = Uri.parse(imageUriString);
-                }
-
-                selectedType = intent.getStringExtra("type");
-                selectedBreed = intent.getStringExtra("breed");
-
-                // check empty
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(staff_add_pet2.this, "Please enter the pet name", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(weight)) {
-                    Toast.makeText(staff_add_pet2.this, "Please enter the pet weight", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(estimatedBirthday)) {
-                    Toast.makeText(staff_add_pet2.this, "Please enter the pet estimated birthday", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(estimatedAge)) {
-                    Toast.makeText(staff_add_pet2.this, "Please enter the pet estimated age", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // check format
-                if (!name.matches("[a-zA-Z\\s]+")) {
-                    Toast.makeText(staff_add_pet2.this, "Name can only contain letters and spaces", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (!weight.matches("^\\d+(\\.\\d{1})?$")) {
-                    Toast.makeText(staff_add_pet2.this, "Weight and estimated age must be digit", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Check gender and neutered
-                if (gender.matches("Choose your pet gender")) {
-                    Toast.makeText(staff_add_pet2.this, "Please choose the pet gender.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (neutered.matches("Are your pet neutered ?")) {
-                    Toast.makeText(staff_add_pet2.this, "Please choose the pet neutered status.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                passToStaffAddPet3();
-            }
-        });
     }
 
-    private void openDatePicker() {
-        // Get the current date
-        final Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        // Open DatePickerDialog
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                // When the user selects a date
-                String formattedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
-
-                // Calculate the age
-                int age = calculateAge(year, month, dayOfMonth);
-
-                // Update the UI
-                petEstimatedBirthday.setText(formattedDate);
-                petEstimatedAge.setText(String.valueOf(age));
-            }
-        }, year, month, day);
-
-        datePickerDialog.show();
+    public void openMonthYearPicker() {
+        month_year_picker monthYearPicker = new month_year_picker(this, (month, year) -> {
+            petEstimatedBirthday.setText(month + " " + year);
+            int selectedMonth = getMonthFromString(month);
+            int selectedYearInt = Integer.parseInt(year);
+            int[] calculatedAge = calculateAge(selectedYearInt, selectedMonth);
+            String formattedAge = formatAge(calculatedAge[0], calculatedAge[1]);
+            petEstimatedAge.setText(formattedAge);
+        });
+        monthYearPicker.show();
     }
 
-    private int calculateAge(int year, int month, int dayOfMonth) {
-        Calendar dob = Calendar.getInstance();
-        Calendar today = Calendar.getInstance();
+    public boolean checkValidation() {
+        String name = petName.getText().toString();
+        String weight = petWeight.getText().toString();
+        String estimatedBirthday = petEstimatedBirthday.getText().toString();
+        String estimatedAge = petEstimatedAge.getText().toString();
 
-        dob.set(year, month, dayOfMonth);
-
-        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
-
-        if (today.get(Calendar.DAY_OF_YEAR) < dob.get(Calendar.DAY_OF_YEAR)) {
-            age--;
+        // Check for empty fields
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(weight) || TextUtils.isEmpty(estimatedBirthday)) {
+            Toast.makeText(this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
+            return false;
         }
 
-        return age;
+        // Check format
+        if (!name.matches("[a-zA-Z\\s]+")) {
+            Toast.makeText(this, "Name can only contain letters and spaces", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (!weight.matches("^\\d+(\\.\\d{1})?$")) {
+            Toast.makeText(this, "Weight must be a valid number", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check gender and neutered
+        if (selectedGender.equals("Choose the pet gender")) {
+            Toast.makeText(this, "Please choose the pet gender.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (selectedNeutered.equals("Are the pet neutered ?")) {
+            Toast.makeText(this, "Please choose the pet neutered status.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     public void passToStaffAddPet3() {
-        String type = selectedType;
-        String breed = selectedBreed;
-        String name = ((EditText) findViewById(R.id.name)).getText().toString();
-        String gender = ((Spinner) findViewById(R.id.selectPetGender)).getSelectedItem().toString();
-        String weight = ((EditText) findViewById(R.id.weight)).getText().toString();
-        String estimatedBirthday = ((EditText) findViewById(R.id.estimatedBirthday)).getText().toString();
-        String estimatedAge = ((EditText) findViewById(R.id.estimatedAge)).getText().toString();
-        String neutered = ((Spinner) findViewById(R.id.selectPetNeutered)).getSelectedItem().toString();
+        String name = petName.getText().toString();
+        String gender = selectedGender;
+        String weight = petWeight.getText().toString();
+        String estimatedBirthday = petEstimatedBirthday.getText().toString();
+        String estimatedAge = petEstimatedAge.getText().toString();
+        String neutered = selectedNeutered;
 
         Intent intent = new Intent(this, staff_add_pet3.class);
 
@@ -242,10 +194,47 @@ public class staff_add_pet2 extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public int getMonthFromString(String month) {
+        switch (month) {
+            case "January": return 0;
+            case "February": return 1;
+            case "March": return 2;
+            case "April": return 3;
+            case "May": return 4;
+            case "June": return 5;
+            case "July": return 6;
+            case "August": return 7;
+            case "September": return 8;
+            case "October": return 9;
+            case "November": return 10;
+            case "December": return 11;
+            default: return -1;
+        }
+    }
 
-    public void goBackAddPet1Page(View view){
+    public int[] calculateAge(int year, int month) {
+        Calendar now = Calendar.getInstance();
+        int currentYear = now.get(Calendar.YEAR);
+        int currentMonth = now.get(Calendar.MONTH);
+        int ageInYears = currentYear - year;
+        int ageInMonths = currentMonth - month;
+        if (ageInMonths < 0) {
+            ageInYears--;
+            ageInMonths += 12;
+        }
+        return new int[]{ageInYears, ageInMonths};
+    }
+
+    public String formatAge(int years, int months) {
+        if (years > 0) {
+            return years + " years " + months + " months";
+        } else {
+            return months + " months";
+        }
+    }
+
+    public void goBackAddPet1Page() {
         Intent intent = new Intent(this, staff_add_pet1.class);
-        TextView ppCheckBox = findViewById(R.id.backBtn);
         startActivity(intent);
     }
 }

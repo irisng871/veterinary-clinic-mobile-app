@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,44 +37,31 @@ import java.util.Map;
 public class staff_register extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton staffProfileImage;
-
     Uri imageUri;
-
     EditText staffName, staffEmail, staffPhoneNumber, staffPassword;
-
-    Button registerBtn;
-
-    FirebaseAuth Auth;
-
+    Button registerBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
-
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        FirebaseUser currentUser = Auth.getCurrentUser();
-//        if (currentUser != null) {
-//            Intent intent = new Intent(getApplicationContext(), staff_home.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//    }
+    FirebaseUser firebaseUser;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_register);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        firebaseUser = auth.getCurrentUser();
 
         staffProfileImage = findViewById(R.id.profileImage);
         staffName = findViewById(R.id.name);
         staffEmail = findViewById(R.id.email);
         staffPhoneNumber = findViewById(R.id.phoneNumber);
         staffPassword = findViewById(R.id.password);
-
         registerBtn = findViewById(R.id.registerBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackIntroPage());
 
         staffProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,23 +81,8 @@ public class staff_register extends AppCompatActivity {
                 password = String.valueOf(staffPassword.getText());
 
                 // check empty
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(staff_register.this, "Please enter your name", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(staff_register.this, "Please enter your email", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(phoneNumber)) {
-                    Toast.makeText(staff_register.this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(staff_register.this, "Please enter your password", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(password)) {
+                    Toast.makeText(staff_register.this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -129,16 +102,16 @@ public class staff_register extends AppCompatActivity {
                 }
 
                 if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$")) {
-                    Toast.makeText(staff_register.this, "Password must be at least 6 characters long and include uppercase, lowercase, number, and special character.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(staff_register.this, "Min 6 characters (upper, lower, number, special character)"
+                            , Toast.LENGTH_SHORT).show();
                 }
 
-                // create staff with firebase authentication
-                Auth.createUserWithEmailAndPassword(email, password)
+                auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(staff_register.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    FirebaseUser firebaseUser = Auth.getCurrentUser();
+                                    FirebaseUser firebaseUser = auth.getCurrentUser();
                                     generateId(name, email, phoneNumber, firebaseUser.getUid());
                                 } else {
                                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -153,7 +126,7 @@ public class staff_register extends AppCompatActivity {
         });
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -168,43 +141,53 @@ public class staff_register extends AppCompatActivity {
         }
     }
 
-    private void generateId(String name, String email, String phoneNumber, String authId) {
+    public void generateId(String name, String email, String phoneNumber, String authId) {
         db.collection("staff")
-                .orderBy("id", Query.Direction.DESCENDING)
-                .limit(1)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            String newId = "ST1";
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String lastId = document.getString("id");
-                                if (lastId != null && lastId.startsWith("ST")) {
-                                    int lastNumber = Integer.parseInt(lastId.substring(2));
-                                    newId = "ST" + (lastNumber + 1);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int maxNumber = 0;
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String lastId = document.getString("id");
+                            if (lastId != null && lastId.startsWith("ST")) {
+                                String numberPart = lastId.substring(2);
+                                try {
+                                    int number = Integer.parseInt(numberPart);
+                                    if (number > maxNumber) {
+                                        maxNumber = number;
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e("ID Parsing Error", "Error parsing ID: " + lastId, e);
                                 }
                             }
-                            saveData(authId, newId, name, email, phoneNumber);
                         }
+
+                        String newId = "ST" + (maxNumber + 1);
+                        Log.d("Staff", "Generated ID: " + newId);
+
+                        saveData(newId, name, email, phoneNumber);
+                    } else {
+                        Log.e("Firestore Error", "Error retrieving staff documents", task.getException());
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore Error", "Error retrieving data", e);
                 });
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -212,9 +195,7 @@ public class staff_register extends AppCompatActivity {
         return "unknown";
     }
 
-    private void saveData(String authId, String id, String name, String email, String phoneNumber) {
-        FirebaseUser firebaseUser = Auth.getCurrentUser();
-
+    public void saveData(String id, String name, String email, String phoneNumber) {
         if (firebaseUser != null) {
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference();
@@ -226,25 +207,21 @@ public class staff_register extends AppCompatActivity {
             staffData.put("phone_number", phoneNumber);
 
             if (imageUri != null) {
-                // determine file extension
+                // Determine file extension
                 String fileExtension = getFileExtension(imageUri);
-                String fileName = "images/" + authId + "." + fileExtension; // Unique file name with extension
+                String fileName = "images/" + id + "." + fileExtension;
                 StorageReference imageRef = storageRef.child(fileName);
 
-                // upload the image
+                // Upload the image
                 imageRef.putFile(imageUri)
                         .addOnSuccessListener(taskSnapshot -> {
-                            // Save image name to staffData
-                            staffData.put("image_name", fileName);
+                            staffData.put("image", fileName);
 
-                            // Save staff data to Firestore
                             db.collection("staff")
-                                    .document(authId)
-                                    .set(staffData)
+                                    .add(staffData)
                                     .addOnSuccessListener(aVoid -> {
                                         Toast.makeText(staff_register.this, "Staff data saved.", Toast.LENGTH_SHORT).show();
 
-                                        // clear text input
                                         TextInputEditText nameText = findViewById(R.id.name);
                                         TextInputEditText emailText = findViewById(R.id.email);
                                         TextInputEditText phoneNumberText = findViewById(R.id.phoneNumber);
@@ -256,7 +233,6 @@ public class staff_register extends AppCompatActivity {
                                         phoneNumberText.getText().clear();
                                         passwordText.getText().clear();
 
-                                        // go home
                                         Intent intent = new Intent(getApplicationContext(), staff_home.class);
                                         startActivity(intent);
                                         finish();
@@ -271,12 +247,10 @@ public class staff_register extends AppCompatActivity {
             } else {
                 // No image selected, save data without image
                 db.collection("staff")
-                        .document(authId)
-                        .set(staffData)
+                        .add(staffData)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(staff_register.this, "Staff data saved.", Toast.LENGTH_SHORT).show();
 
-                            // clear text input
                             TextInputEditText nameText = findViewById(R.id.name);
                             TextInputEditText emailText = findViewById(R.id.email);
                             TextInputEditText phoneNumberText = findViewById(R.id.phoneNumber);
@@ -288,7 +262,6 @@ public class staff_register extends AppCompatActivity {
                             phoneNumberText.getText().clear();
                             passwordText.getText().clear();
 
-                            // go home
                             Intent intent = new Intent(getApplicationContext(), staff_home.class);
                             startActivity(intent);
                             finish();
@@ -302,9 +275,7 @@ public class staff_register extends AppCompatActivity {
         }
     }
 
-    public void goBackIntroPage(View view){
-        Intent intent = new Intent(this, intro.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackIntroPage(){
+        finish();
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -34,30 +34,27 @@ import java.util.Map;
 public class staff_profile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton staffProfileImage;
-
     Uri imageUri;
-
     EditText staffName, staffEmail, staffPhoneNumber;
-
-    Button saveBtn;
-
-    FirebaseAuth Auth;
-
+    Button saveBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
+    FirebaseUser firebaseUser;
+    FirebaseStorage storage;
+    StorageReference storageRef;
+    String staffId;
 
-    FirebaseUser staff;
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_profile);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        staff = Auth.getCurrentUser();
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
+        firebaseUser = auth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         staffProfileImage = findViewById(R.id.profileImage);
         staffName = findViewById(R.id.name);
@@ -65,77 +62,78 @@ public class staff_profile extends AppCompatActivity {
         staffPhoneNumber = findViewById(R.id.phoneNumber);
         saveBtn = findViewById(R.id.saveBtn);
 
-        staffProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackHomePage());
 
-        if (staff == null) {
+        staffProfileImage.setOnClickListener(v -> openGallery());
+
+        if (firebaseUser == null) {
             Intent intent = new Intent(staff_profile.this, login.class);
             startActivity(intent);
             finish();
         } else {
-            db.collection("staff")
-                    .document(staff.getUid())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    String name = document.getString("name");
-                                    String email = document.getString("email");
-                                    String phoneNumber = document.getString("phone_number");
-                                    String emergencyContact = document.getString("emergency_contact");
-                                    String emergencyPhoneNumber = document.getString("emergency_phone_number");
-
-                                    staffName.setText(name);
-                                    staffEmail.setText(email);
-                                    staffPhoneNumber.setText(phoneNumber);
-
-                                    // Load profile image from Firebase Storage
-                                    String id = staff.getUid();
-
-                                    // Assuming the image is stored with a known file extension
-                                    String[] possibleExtensions = {"jpg", "png", "gif"};
-
-                                    for (String extension : possibleExtensions) {
-                                        String fileName = "images/" + id + "." + extension;
-                                        StorageReference imageRef = storageRef.child(fileName);
-
-                                        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                            Picasso.get().load(uri).into(staffProfileImage);
-                                        }).addOnFailureListener(exception -> {
-                                            // Log or handle the failure silently; continue to try the next extension
-                                        });
-                                    }
-                                } else {
-                                    Toast.makeText(staff_profile.this, "Document does not exist", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(staff_profile.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+            loadStaffDetails(firebaseUser.getEmail());
         }
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newName = ((TextInputEditText) findViewById(R.id.name)).getText().toString();
-                String newPhoneNumber = ((TextInputEditText) findViewById(R.id.phoneNumber)).getText().toString();
-                String newEmergencyContact = ((TextInputEditText) findViewById(R.id.emergencyContact)).getText().toString();
-                String newEmergencyPhoneNumber = ((TextInputEditText) findViewById(R.id.emergencyPhoneNumber)).getText().toString();
+        saveBtn.setOnClickListener(v -> {
+            String newName = staffName.getText().toString();
+            String newPhoneNumber = staffPhoneNumber.getText().toString();
 
-                updateUserData (newName, newPhoneNumber, newEmergencyContact, newEmergencyPhoneNumber);
+            updateUserData(newName, newPhoneNumber);
+
+            if (imageUri != null) {
+                uploadProfileImage(staffId);
+            } else {
+                Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void openGallery() {
+    public void loadStaffDetails(String email) {
+        db.collection("staff")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                            String name = document.getString("name");
+                            String emailFetched = document.getString("email");
+                            String phoneNumber = document.getString("phone_number");
+                            staffId = document.getString("id");
+
+                            staffName.setText(name);
+                            staffEmail.setText(emailFetched);
+                            staffPhoneNumber.setText(phoneNumber);
+
+                            loadProfileImage(staffId);
+                        } else {
+                            Toast.makeText(staff_profile.this, "Profile not found.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(staff_profile.this, "Failed to fetch profile details", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void loadProfileImage(String id) {
+        String fileExtension = getFileExtension(imageUri);
+        String fileName = "images/" + id + "." + fileExtension;
+        StorageReference imageRef = storageRef.child(fileName);
+
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            Picasso.get()
+                    .load(uri)
+                    .fit()
+                    .centerCrop()
+                    .into(staffProfileImage);
+        }).addOnFailureListener(exception -> {
+            Log.e("ImageLoad", "Failed to load image: " + exception.getMessage());
+        });
+    }
+
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -144,44 +142,24 @@ public class staff_profile extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             staffProfileImage.setImageURI(imageUri);
-
-            if (staff != null) {
-                String id = staff.getUid();
-                String fileExtension = getFileExtension(imageUri);
-                String fileName = "images/" + id + "." + fileExtension;
-                StorageReference imageRef = storageRef.child(fileName);
-
-                imageRef.putFile(imageUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            Toast.makeText(staff_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(staff_profile.this, "Failed to update profile image", Toast.LENGTH_SHORT).show();
-                        });
-            }
         }
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -189,34 +167,54 @@ public class staff_profile extends AppCompatActivity {
         return "unknown";
     }
 
-    public void updateUserData (String newName, String newPhoneNumber, String newEmergencyContact, String newEmergencyPhoneNumber) {
-        if (staff != null) {
-            DocumentReference documentReference = db.collection("staff")
-                    .document(staff.getUid());
-
+    public void updateUserData(String newName, String newPhoneNumber) {
+        if (firebaseUser != null) {
             Map<String, Object> updatedData = new HashMap<>();
             updatedData.put("name", newName);
             updatedData.put("phone_number", newPhoneNumber);
-            updatedData.put("emergency_contact", newEmergencyContact);
-            updatedData.put("emergency_phone_number", newEmergencyPhoneNumber);
 
-            documentReference.update(updatedData)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(staff_profile.this, "New data updated successfully", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(staff_profile.this, "Failed to update new data", Toast.LENGTH_LONG).show();
-                            }
+            db.collection("staff")
+                    .whereEqualTo("email", firebaseUser.getEmail())
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            String docId = task.getResult().getDocuments().get(0).getId();
+                            db.collection("staff")
+                                    .document(docId)
+                                    .update(updatedData)
+                                    .addOnCompleteListener(updateTask -> {
+                                        if (updateTask.isSuccessful()) {
+                                            Toast.makeText(staff_profile.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(staff_profile.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
                     });
         }
     }
 
-    public void goBackHomePage(View view){
-        Intent intent = new Intent(this, home.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void uploadProfileImage(String userId) {
+        if (imageUri == null) {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fileExtension = getFileExtension(imageUri);
+        String fileName = "images/" + userId + "." + fileExtension;
+        StorageReference imageRef = storageRef.child(fileName);
+
+        imageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    Toast.makeText(staff_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                    loadProfileImage(userId);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(staff_profile.this, "Failed to update profile image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public void goBackHomePage() {
+        finish();
     }
 }

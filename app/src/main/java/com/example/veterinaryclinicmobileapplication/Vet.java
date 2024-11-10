@@ -1,28 +1,32 @@
 package com.example.veterinaryclinicmobileapplication;
 
 public class Vet {
-    private String vetId;
-    private String vetName;
+    private String id;
+    private String name;
     private String imageUrl;
+    private String specialtyArea;
 
-    // Constructor
-    public Vet(String vetId, String vetName, String imageUrl) {
-        this.vetId = vetId;
-        this.vetName = vetName;
+    public Vet(String id, String name, String imageUrl, String specialtyArea) {
+        this.id = id;
+        this.name = name;
         this.imageUrl = imageUrl;
+        this.specialtyArea = specialtyArea;
     }
 
-    // Getters
-    public String getVetId() {
-        return vetId;
+    public String getid() {
+        return id;
     }
 
-    public String getVetName() {
-        return vetName;
+    public String getName() {
+        return name;
     }
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public String getSpecialtyArea() {
+        return specialtyArea;
     }
 }
 

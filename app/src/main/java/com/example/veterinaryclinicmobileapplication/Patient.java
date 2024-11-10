@@ -1,14 +1,12 @@
 package com.example.veterinaryclinicmobileapplication;
 
-public class AdoptablePet {
+public class Patient {
     private String id;
     private String name;
-    private String imageUrl;
 
-    public AdoptablePet(String id, String name, String imageUrl) {
+    public Patient(String id, String name) {
         this.id = id;
         this.name = name;
-        this.imageUrl = imageUrl;
     }
 
     public String getId() {
@@ -26,13 +24,4 @@ public class AdoptablePet {
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 }
-

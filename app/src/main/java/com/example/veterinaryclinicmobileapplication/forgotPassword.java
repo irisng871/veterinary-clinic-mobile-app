@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,19 +19,21 @@ import com.google.firebase.auth.FirebaseAuth;
 public class forgotPassword extends AppCompatActivity {
 
     EditText email;
-
     Button doneBtn;
-
-    FirebaseAuth Auth;
+    ImageButton backBtn;
+    FirebaseAuth auth;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.forgot_password);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         email = findViewById(R.id.email);
         doneBtn = findViewById(R.id.doneBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackLoginPage());
 
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,14 +49,13 @@ public class forgotPassword extends AppCompatActivity {
                     Toast.makeText(forgotPassword.this, "Invalid email address", Toast.LENGTH_SHORT).show();
                 }
 
-                Auth.sendPasswordResetEmail(Email)
+                auth.sendPasswordResetEmail(Email)
                         .addOnCompleteListener(forgotPassword.this, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     Toast.makeText(forgotPassword.this, "Reset password email is sent successfully", Toast.LENGTH_SHORT).show();
 
-                                    // go login
                                     Intent intent = new Intent(getApplicationContext(), login.class);
                                     startActivity(intent);
                                     finish();
@@ -64,5 +66,9 @@ public class forgotPassword extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private void goBackLoginPage() {
+        finish();
     }
 }

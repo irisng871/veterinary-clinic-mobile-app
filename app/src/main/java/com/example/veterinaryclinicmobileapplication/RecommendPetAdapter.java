@@ -13,59 +13,53 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
-public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder> {
+public class RecommendPetAdapter extends RecyclerView.Adapter<RecommendPetAdapter.RecommendedPetViewHolder> {
 
     private Context context;
-    private List<Pet> petList;
+    private List<RecommendPet> petList;
 
-    public PetAdapter(Context context, List<Pet> petList) {
+    public RecommendPetAdapter(Context context, List<RecommendPet> petList) {
         this.context = context;
         this.petList = petList;
     }
 
     @NonNull
     @Override
-    public PetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.pet, parent, false);
-        return new PetViewHolder(view);
+    public RecommendedPetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.recommend, parent, false);
+        return new RecommendedPetViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PetViewHolder holder, int position) {
-        Pet pet = petList.get(position);
-
+    public void onBindViewHolder(@NonNull RecommendedPetViewHolder holder, int position) {
+        RecommendPet pet = petList.get(position);
         holder.petName.setText(pet.getName());
+
         Glide.with(context)
                 .load(pet.getImageUrl())
                 .into(holder.petImage);
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, pet_profile.class);
+            Intent intent = new Intent(context, recommend_adoptable_pet_details.class);
             intent.putExtra("id", pet.getId());
-            intent.putExtra("petOwnerId", pet.getPetOwnerId());
-
-            Log.d("PetAdapter", "Passing pet ID: " + pet.getId());
-
+            Log.d("RecommendedPetAdapter", "Passing pet ID: " + pet.getId());
             context.startActivity(intent);
         });
     }
-
 
     @Override
     public int getItemCount() {
         return petList.size();
     }
 
-    public static class PetViewHolder extends RecyclerView.ViewHolder {
+    public static class RecommendedPetViewHolder extends RecyclerView.ViewHolder {
         ImageView petImage;
         TextView petName;
 
-        public PetViewHolder(@NonNull View itemView) {
+        public RecommendedPetViewHolder(@NonNull View itemView) {
             super(itemView);
             petImage = itemView.findViewById(R.id.petImage);
             petName = itemView.findViewById(R.id.petName);

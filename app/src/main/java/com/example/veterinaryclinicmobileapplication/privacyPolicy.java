@@ -1,20 +1,23 @@
 package com.example.veterinaryclinicmobileapplication;
 
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 public class privacyPolicy extends AppCompatActivity {
 
-    FirebaseAuth Auth;
-
-    FirebaseFirestore db;
+    ImageButton backBtn;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.vet_home);
+        setContentView(R.layout.privacy_policy);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackRegisterPage());
+    }
+
+    public void goBackRegisterPage(){
+        finish();
     }
 }

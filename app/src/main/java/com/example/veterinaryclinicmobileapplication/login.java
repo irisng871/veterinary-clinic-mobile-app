@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,23 +23,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class login extends AppCompatActivity {
 
     EditText userEmail, userPassword;
-
-    Button loginBtn;
-
-    FirebaseAuth Auth;
-
+    Button loginBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         userEmail = findViewById(R.id.email);
         userPassword = findViewById(R.id.password);
         loginBtn = findViewById(R.id.loginBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackIntroPage());
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,28 +49,21 @@ public class login extends AppCompatActivity {
                 email = String.valueOf(userEmail.getText());
                 password = String.valueOf(userPassword.getText());
 
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(login.this, "Please enter your email", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+                    Toast.makeText(login.this, "Please enter your email and password", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(login.this, "Please enter your password", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Auth.signInWithEmailAndPassword(email, password)
+                auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()){
-                                    FirebaseUser firebaseUser = Auth.getCurrentUser();
-
                                     Intent intent = new Intent(getApplicationContext(), home.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
-                                    Toast.makeText(login.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(login.this, "Authentication failed", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -77,10 +71,8 @@ public class login extends AppCompatActivity {
         });
     }
 
-    public void goBackIntroPage(View view){
-        Intent intent = new Intent(this, intro.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackIntroPage(){
+        finish();
     }
 
     public void goForgotPasswordPage(View view){

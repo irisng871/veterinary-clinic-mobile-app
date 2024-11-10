@@ -1,5 +1,6 @@
 package com.example.veterinaryclinicmobileapplication;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,17 +23,11 @@ import com.google.firebase.storage.StorageReference;
 public class pet_profile extends AppCompatActivity {
 
     TextView petType, petBreed, petName, petGender, petWeight, petEstimatedBirthday, petEstimatedAge, petNeutered, petAllergy;
-
-    ImageButton profileImageButton;
-
+    ImageButton profileImageButton, backBtn;
     Uri imageUri;
-
     Button editBtn, deleteBtn;
-
     FirebaseFirestore db;
-
     FirebaseAuth Auth;
-
     FirebaseStorage storage;
 
     @Override
@@ -56,6 +51,9 @@ public class pet_profile extends AppCompatActivity {
         profileImageButton = findViewById(R.id.profileImage);
         editBtn = findViewById(R.id.editBtn);
         deleteBtn = findViewById(R.id.deleteBtn);
+
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackMyPetPage());
 
         Intent intent = getIntent();
         String petId = intent.getStringExtra("id");
@@ -83,9 +81,10 @@ public class pet_profile extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deletePet(petId);
+                showDeletionDialogBox(petId);
             }
         });
+
     }
 
     public void loadPetDetails(String petId) {
@@ -141,17 +140,41 @@ public class pet_profile extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Error getting pet details", Toast.LENGTH_SHORT).show());
     }
 
+    public void showDeletionDialogBox(String petId) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.deletion);
+
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.frame);
+
+        Button yesBtn = dialog.findViewById(R.id.yesBtn);
+        Button noBtn = dialog.findViewById(R.id.noBtn);
+
+        noBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        yesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                deletePet(petId);
+            }
+        });
+
+        dialog.show();
+    }
+
     public void deletePet(String petId) {
-        // Get the current user ID
         String userId = Auth.getCurrentUser().getUid();
 
-        // Retrieve the pet owner ID based on the current user ID
         db.collection("pet_owner").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         String petOwnerId = documentSnapshot.getString("id");
                         if (petOwnerId != null && !petOwnerId.isEmpty()) {
-                            // Proceed with image deletion and pet document deletion
                             proceedWithDeletion(petId, petOwnerId);
                         } else {
                             Log.e("DeletePet", "Pet owner ID is null or empty.");
@@ -168,7 +191,7 @@ public class pet_profile extends AppCompatActivity {
                 });
     }
 
-    private void proceedWithDeletion(String petId, String petOwnerId) {
+    public void proceedWithDeletion(String petId, String petOwnerId) {
         String jpgFileName = "images/" + petOwnerId + "/" + petId + ".jpg";
         String pngFileName = "images/" + petOwnerId + "/" + petId + ".png";
 
@@ -179,7 +202,7 @@ public class pet_profile extends AppCompatActivity {
         jpgImageRef.delete()
                 .addOnSuccessListener(aVoid -> {
                     Log.d("DeletePet", "JPG image deleted successfully.");
-                    deletePetDocument(petId); // Delete the pet document after successful deletion
+                    deletePetDocument(petId);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("DeletePet", "Error deleting JPG image: " + e.getMessage());
@@ -187,16 +210,17 @@ public class pet_profile extends AppCompatActivity {
                     pngImageRef.delete()
                             .addOnSuccessListener(aVoid1 -> {
                                 Log.d("DeletePet", "PNG image deleted successfully.");
-                                deletePetDocument(petId); // Delete the pet document after successful deletion
+                                deletePetDocument(petId);
                             })
                             .addOnFailureListener(e1 -> {
                                 Log.e("DeletePet", "Error deleting PNG image: " + e1.getMessage());
-                                Toast.makeText(this, "No images found or could not be deleted. Pet not deleted.", Toast.LENGTH_SHORT).show();
+                                Log.d("DeletePet", "No images found, proceeding to delete pet document.");
+                                deletePetDocument(petId);
                             });
                 });
     }
 
-    private void deletePetDocument(String petId) {
+    public void deletePetDocument(String petId) {
         db.collection("pet").document(petId).delete()
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(this, "Pet deleted successfully", Toast.LENGTH_SHORT).show();
@@ -210,9 +234,7 @@ public class pet_profile extends AppCompatActivity {
                 });
     }
 
-    public void goBackMyPetPage(View view){
-        Intent intent = new Intent(this, my_pet.class);
-        ImageButton backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackMyPetPage(){
+        finish();
     }
 }

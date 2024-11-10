@@ -18,46 +18,38 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class vet_profile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     ImageButton vetProfileImage;
-
     Uri imageUri;
-
     EditText vetName, vetEmail, vetPhoneNumber, vetSpecialtyArea;
-
-    Button saveBtn;
-
-    FirebaseAuth Auth;
-
+    Button saveBtn, backBtn;
+    FirebaseAuth auth;
     FirebaseFirestore db;
+    FirebaseUser firebaseUser;
+    FirebaseStorage storage;
+    StorageReference storageRef;
+    String currentVetId;
 
-    FirebaseUser vet;
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vet_profile);
 
-        Auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        vet = Auth.getCurrentUser();
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
+        firebaseUser = auth.getCurrentUser();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         vetProfileImage = findViewById(R.id.profileImage);
         vetName = findViewById(R.id.name);
@@ -65,77 +57,79 @@ public class vet_profile extends AppCompatActivity {
         vetPhoneNumber = findViewById(R.id.phoneNumber);
         vetSpecialtyArea = findViewById(R.id.specialtyArea);
         saveBtn = findViewById(R.id.saveBtn);
+        backBtn = findViewById(R.id.backBtn);
 
-        vetProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openGallery();
-            }
-        });
+        backBtn.setOnClickListener(v -> goBackHomePage());
 
-        if (vet == null) {
+        vetProfileImage.setOnClickListener(v -> openGallery());
+
+        if (firebaseUser == null) {
             Intent intent = new Intent(vet_profile.this, login.class);
             startActivity(intent);
             finish();
         } else {
-            db.collection("veterinarian")
-                    .document(vet.getUid())
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    String name = document.getString("name");
-                                    String email = document.getString("email");
-                                    String phoneNumber = document.getString("phone_number");
-                                    String specialtyArea = document.getString("specialty_area");
-
-                                    vetName.setText(name);
-                                    vetEmail.setText(email);
-                                    vetPhoneNumber.setText(phoneNumber);
-                                    vetSpecialtyArea.setText(specialtyArea);
-
-                                    // Load profile image from Firebase Storage
-                                    String id = vet.getUid();
-
-                                    // Assuming the image is stored with a known file extension
-                                    String[] possibleExtensions = {"jpg", "png", "gif"};
-
-                                    for (String extension : possibleExtensions) {
-                                        String fileName = "images/" + id + "." + extension;
-                                        StorageReference imageRef = storageRef.child(fileName);
-
-                                        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                            Picasso.get().load(uri).into(vetProfileImage);
-                                        }).addOnFailureListener(exception -> {
-                                            // Log or handle the failure silently; continue to try the next extension
-                                        });
-                                    }
-                                } else {
-                                    Toast.makeText(vet_profile.this, "Document does not exist", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(vet_profile.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+            loadVetDetails(firebaseUser.getEmail());
         }
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newName = ((TextInputEditText) findViewById(R.id.name)).getText().toString();
-                String newPhoneNumber = ((TextInputEditText) findViewById(R.id.phoneNumber)).getText().toString();
-                String newSpecialtyArea = ((TextInputEditText) findViewById(R.id.specialtyArea)).getText().toString();
+        saveBtn.setOnClickListener(v -> {
+            String newName = vetName.getText().toString();
+            String newPhoneNumber = vetPhoneNumber.getText().toString();
+            String newSpecialtyArea = vetSpecialtyArea.getText().toString();
 
-                updateUserData (newName, newPhoneNumber, newSpecialtyArea);
+            updateUserData(newName, newPhoneNumber, newSpecialtyArea);
+
+            if (imageUri != null) {
+                uploadProfileImage(currentVetId);
             }
         });
     }
 
-    private void openGallery() {
+    public void loadVetDetails(String email) {
+        db.collection("veterinarian")
+                .whereEqualTo("email", email)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            DocumentSnapshot document = task.getResult().getDocuments().get(0);
+
+                            currentVetId = document.getString("id");
+                            String name = document.getString("name");
+                            String emailFetched = document.getString("email");
+                            String phoneNumber = document.getString("phone_number");
+                            String specialtyArea = document.getString("specialty_area");
+
+                            vetName.setText(name);
+                            vetEmail.setText(emailFetched);
+                            vetPhoneNumber.setText(phoneNumber);
+                            vetSpecialtyArea.setText(specialtyArea);
+
+                            loadProfileImage(currentVetId);
+                        } else {
+                            Toast.makeText(vet_profile.this, "Profile not found.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(vet_profile.this, "Failed to fetch profile details", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void loadProfileImage(String vetId) {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        String fileExtension = getFileExtension(imageUri);
+        String fileName = "images/" + vetId + "." + fileExtension;
+        StorageReference imageRef = storageRef.child(fileName);
+
+        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+            Picasso.get().load(uri).into(vetProfileImage);
+        }).addOnFailureListener(exception -> {
+            Log.e("ImageLoad", "Failed to load image: " + exception.getMessage());
+        });
+    }
+
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -144,44 +138,44 @@ public class vet_profile extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
             vetProfileImage.setImageURI(imageUri);
-
-            if (vet != null) {
-                String id = vet.getUid();
-                String fileExtension = getFileExtension(imageUri);
-                String fileName = "images/" + id + "." + fileExtension;
-                StorageReference imageRef = storageRef.child(fileName);
-
-                imageRef.putFile(imageUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            Toast.makeText(vet_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(vet_profile.this, "Failed to update profile image", Toast.LENGTH_SHORT).show();
-                        });
-            }
         }
     }
 
-    private String getFileExtension(Uri uri) {
+    public void uploadProfileImage(String vetId) {
+        if (imageUri == null) {
+            Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fileExtension = getFileExtension(imageUri);
+        String fileName = "images/" + vetId + "." + fileExtension;
+        StorageReference imageRef = storageRef.child(fileName);
+
+        imageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    Toast.makeText(vet_profile.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                    loadProfileImage(vetId);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(vet_profile.this, "Failed to update profile image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -189,33 +183,28 @@ public class vet_profile extends AppCompatActivity {
         return "unknown";
     }
 
-    public void updateUserData (String newName, String newPhoneNumber, String newSpecialtyArea) {
-        if (vet != null) {
-            DocumentReference documentReference = db.collection("veterinarian")
-                    .document(vet.getUid());
-
-            Map<String, Object> updatedData = new HashMap<>();
-            updatedData.put("name", newName);
-            updatedData.put("phone_number", newPhoneNumber);
-            updatedData.put("specialty_rea", newSpecialtyArea);
-
-            documentReference.update(updatedData)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(vet_profile.this, "New data updated successfully", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(vet_profile.this, "Failed to update new data", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-        }
+    public void updateUserData(String newName, String newPhoneNumber, String newSpecialtyArea) {
+        db.collection("veterinarian")
+                .whereEqualTo("email", firebaseUser.getEmail())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        String docId = task.getResult().getDocuments().get(0).getId();
+                        db.collection("veterinarian")
+                                .document(docId)
+                                .update("name", newName, "phone_number", newPhoneNumber, "specialty_area", newSpecialtyArea)
+                                .addOnCompleteListener(updateTask -> {
+                                    if (updateTask.isSuccessful()) {
+                                        Toast.makeText(vet_profile.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(vet_profile.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                });
     }
 
-    public void goBackHomePage(View view){
-        Intent intent = new Intent(this, home.class);
-        Button backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackHomePage() {
+        finish();
     }
 }

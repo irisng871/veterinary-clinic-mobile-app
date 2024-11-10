@@ -6,11 +6,7 @@ public class Pet {
     private String imageUrl;
     private String petOwnerId;
 
-    public Pet() {
-        // Default constructor required for Firestore
-    }
-
-    public Pet(String id, String name, String imageUrl) {
+    public Pet(String id, String name, String imageUrl, String petOwnerId) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;

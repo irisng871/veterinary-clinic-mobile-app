@@ -41,37 +41,27 @@ import java.util.Map;
 public class edit_pet_profile extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
     Uri imageUri;
-
-    ImageButton profileImageButton;
-
+    ImageButton profileImageButton, pickDate, backBtn;
     EditText petName, petWeight, petAllergy;
-
     String selectedGender, selectedNeutered, petId;
-
-    ImageButton pickDate;
-
     TextInputEditText petEstimatedBirthday, petEstimatedAge;
-
     Button editBtn;
-
     Spinner petGender, petNeutered;
-
     ArrayAdapter<String> adapterForPetGender, adapterForPetNeutered;
-
-    FirebaseAuth Auth;
-
     FirebaseFirestore db;
-
     FirebaseStorage storage;
-
     StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_pet_profile);
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         Intent intent = getIntent();
         String petId = intent.getStringExtra("id");
@@ -87,8 +77,8 @@ public class edit_pet_profile extends AppCompatActivity {
         editBtn = findViewById(R.id.editBtn);
         profileImageButton = findViewById(R.id.profileImage);
 
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackPetProfilePage());
 
         profileImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,40 +152,20 @@ public class edit_pet_profile extends AppCompatActivity {
                     imageUri = Uri.parse(imageUriString);
                 }
 
-                // check empty
-                if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(edit_pet_profile.this, "Please enter your pet name", Toast.LENGTH_SHORT).show();
+                // Check empty
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(weight) || TextUtils.isEmpty(allergy) || TextUtils.isEmpty(estimatedBirthday)) {
+                    Toast.makeText(edit_pet_profile.this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (TextUtils.isEmpty(weight)) {
-                    Toast.makeText(edit_pet_profile.this, "Please enter your pet weight", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(estimatedBirthday)) {
-                    Toast.makeText(edit_pet_profile.this, "Please enter your pet estimated birthday", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(estimatedAge)) {
-                    Toast.makeText(edit_pet_profile.this, "Please enter your pet estimated age", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(allergy)) {
-                    Toast.makeText(edit_pet_profile.this, "Please enter your pet allergy", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // check format
-                if (!name.matches("[a-zA-Z\\s]+") || !allergy.matches("[a-zA-Z\\s]+")) {
+                // Check format
+                if (!name.matches("[a-zA-Z\\s]+")) {
                     Toast.makeText(edit_pet_profile.this, "Name and allergy can only contain letters and spaces", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (!weight.matches("\\d+")) {
-                    Toast.makeText(edit_pet_profile.this, "Weight and estimated age must be digit", Toast.LENGTH_SHORT).show();
+                if (!weight.matches("\\d+(\\.\\d+)?")) {
+                    Toast.makeText(edit_pet_profile.this, "Weight must be a valid number", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -210,12 +180,12 @@ public class edit_pet_profile extends AppCompatActivity {
                     return;
                 }
 
-                updateUserData(petId, name, gender, weight, estimatedBirthday, estimatedAge, neutered, allergy);
+                updatePetData(petId, name, gender, weight, estimatedBirthday, estimatedAge, neutered, allergy);
             }
         });
     }
 
-    private void loadPetDetails(String petId) {
+    public void loadPetDetails(String petId) {
         db.collection("pet").document(petId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -234,7 +204,6 @@ public class edit_pet_profile extends AppCompatActivity {
                         petEstimatedAge.setText(estimatedAge);
                         petAllergy.setText(allergy);
 
-                        // Set Spinner values for gender and neutered
                         if (gender != null) {
                             int genderPosition = adapterForPetGender.getPosition(gender);
                             petGender.setSelection(genderPosition);
@@ -245,24 +214,19 @@ public class edit_pet_profile extends AppCompatActivity {
                             petNeutered.setSelection(neuteredPosition);
                         }
 
-                        Log.d("edit_pet_profile", "Pet Owner ID: " + petOwnerId);
-                        Log.d("edit_pet_profile", "Pet ID: " + petId);
-
-                        // Construct file names for both jpg and png
                         String jpgFileName = "images/" + petOwnerId + "/" + petId + ".jpg";
                         String pngFileName = "images/" + petOwnerId + "/" + petId + ".png";
 
-                        // Try loading the .jpg image first
+                        // Try loading .jpg image first
                         StorageReference jpgImageRef = storage.getReference().child(jpgFileName);
                         jpgImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                             Picasso.get().load(uri).into(profileImageButton);
                         }).addOnFailureListener(e -> {
-                            // If .jpg fails, try loading the .png image
+                            // If .jpg fails, try loading .png image
                             StorageReference pngImageRef = storage.getReference().child(pngFileName);
                             pngImageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                                 Picasso.get().load(uri).into(profileImageButton);
                             }).addOnFailureListener(e1 -> {
-                                Log.e("edit_pet_profile", "Failed to load image: " + e1.getMessage());
                                 Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
                             });
                         });
@@ -273,7 +237,7 @@ public class edit_pet_profile extends AppCompatActivity {
                 .addOnFailureListener(e -> Toast.makeText(this, "Error getting pet details", Toast.LENGTH_SHORT).show());
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -282,20 +246,15 @@ public class edit_pet_profile extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
-
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageUri = data.getData();
-            profileImageButton.setImageURI(imageUri);  // Display the selected image
+            profileImageButton.setImageURI(imageUri);
 
             if (petId != null) {
                 String fileExtension = getFileExtension(imageUri);
-                // Use petId to create the file name
                 String fileName = "images/" + petId + "." + fileExtension;
                 StorageReference imageRef = storageRef.child(fileName);
 
-                // Upload the image file to Firebase Storage
                 imageRef.putFile(imageUri)
                         .addOnSuccessListener(taskSnapshot -> {
                             Toast.makeText(edit_pet_profile.this, "Pet profile image updated", Toast.LENGTH_SHORT).show();
@@ -307,25 +266,19 @@ public class edit_pet_profile extends AppCompatActivity {
         }
     }
 
-
-    private void openDatePicker() {
-        // Get the current date
+    public void openDatePicker() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        // Open DatePickerDialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                // When the user selects a date
                 String formattedDate = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year);
 
-                // Calculate the age
                 int age = calculateAge(year, month, dayOfMonth);
 
-                // Update the UI
                 petEstimatedBirthday.setText(formattedDate);
                 petEstimatedAge.setText(String.valueOf(age));
             }
@@ -334,7 +287,7 @@ public class edit_pet_profile extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    private int calculateAge(int year, int month, int dayOfMonth) {
+    public int calculateAge(int year, int month, int dayOfMonth) {
         Calendar dob = Calendar.getInstance();
         Calendar today = Calendar.getInstance();
 
@@ -349,7 +302,7 @@ public class edit_pet_profile extends AppCompatActivity {
         return age;
     }
 
-    public void updateUserData (String petId, String newName, String newGender, String newWeight, String newEstimatedBirthday, String newEstimatedAge, String newNeutered, String newAllergy) {
+    public void updatePetData (String petId, String newName, String newGender, String newWeight, String newEstimatedBirthday, String newEstimatedAge, String newNeutered, String newAllergy) {
         if (petId != null) {
             DocumentReference documentReference = db.collection("pet")
                     .document(petId);
@@ -370,7 +323,6 @@ public class edit_pet_profile extends AppCompatActivity {
                             if (task.isSuccessful()){
                                 Toast.makeText(edit_pet_profile.this, "New data updated successfully", Toast.LENGTH_LONG).show();
 
-                                // go my_pet
                                 Intent intent = new Intent(getApplicationContext(), my_pet.class);
                                 startActivity(intent);
                                 finish();
@@ -382,20 +334,18 @@ public class edit_pet_profile extends AppCompatActivity {
         }
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -403,9 +353,7 @@ public class edit_pet_profile extends AppCompatActivity {
         return "unknown";
     }
 
-    public void goBackPetProfilePage(View view){
-        Intent intent = new Intent(this, pet_profile.class);
-        ImageButton backBtn = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackPetProfilePage() {
+        finish();
     }
 }

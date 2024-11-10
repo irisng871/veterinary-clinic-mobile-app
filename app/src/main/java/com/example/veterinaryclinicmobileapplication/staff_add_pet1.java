@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,29 +31,17 @@ import java.util.ArrayList;
 public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.OnBreedClickListener {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-
-    ImageButton petProfileImage;
-
+    ImageButton petProfileImage, backBtn;
     Button nextBtn;
-
     Uri imageUri;
-
     Spinner selectPetType;
-
     String selectedType, selectedBreed;
-
     ArrayAdapter<String> adapterForPetType;
-
     RecyclerView breedRecyclerView;
-
     RelativeLayout selectedBreedLayout;
-
     BreedAdapter breedAdapter;
-
     FirebaseFirestore db;
-
     FirebaseStorage storage;
-
     RelativeLayout breedSelection;
 
     @Override
@@ -60,13 +49,16 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_add_pet1);
 
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+
         petProfileImage = findViewById(R.id.profileImage);
         selectPetType = findViewById(R.id.selectPetType);
         breedRecyclerView = findViewById(R.id.breedRecyclerView);
         nextBtn = findViewById(R.id.nextBtn);
 
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackPetfolioPage());
 
         String[] typeSelectionOptions = {"Choose the pet type", "cat", "dog"};
         adapterForPetType = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, typeSelectionOptions);
@@ -88,6 +80,8 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
         });
 
         petProfileImage.setOnClickListener(v -> openGallery());
+        nextBtn.setOnClickListener(v -> passToStaffAddPet2());
+        backBtn.setOnClickListener(v -> goBackPetfolioPage());
 
         nextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +91,7 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
         });
     }
 
-    private void openGallery() {
+    public void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
@@ -112,43 +106,44 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
         }
     }
 
-    private void fetchBreeds(String petType) {
-        db.collection("pet_type").document(petType).collection("breed").get()
+    public void fetchBreeds(String petType) {
+        String formattedPetType = petType.toLowerCase();
+
+        db.collection("pet_type").document(formattedPetType).collection("breed").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     ArrayList<Breed> breedList = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         String breedName = document.getString("name");
                         String breedImageName = document.getString("image");
 
-                        StorageReference imageRef = storage.getReference().child("pet_type/" + petType + "/" + breedImageName);
+                        if (breedName != null && breedImageName != null) {
+                            StorageReference imageRef = storage.getReference().child("pet_type/" + formattedPetType + "/" + breedImageName);
 
-                        imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                            // Add breed to the list with image URL
-                            breedList.add(new Breed(breedName, uri.toString()));
+                            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                breedList.add(new Breed(breedName, uri.toString()));
 
-                            // Notify adapter about the data change
-                            breedRecyclerView.getAdapter().notifyDataSetChanged();
-                        }).addOnFailureListener(e -> {
-                            // Handle any errors here
-                        });
+                                breedList.sort((breed1, breed2) -> breed1.getName().compareToIgnoreCase(breed2.getName()));
+
+                                if (breedAdapter != null) {
+                                    breedAdapter.notifyDataSetChanged();
+                                }
+                            }).addOnFailureListener(e -> {});
+                        }
                     }
 
-                    // Set up RecyclerView with GridLayoutManager
                     breedRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-                    breedRecyclerView.setAdapter(new BreedAdapter(this, breedList, this));
+                    breedAdapter = new BreedAdapter(this, breedList, this);
+                    breedRecyclerView.setAdapter(breedAdapter);
                 })
-                .addOnFailureListener(e -> {
-                });
+                .addOnFailureListener(e -> {});
     }
 
     @Override
     public void onBreedClick(int position) {
-        // Clear previous selection
         if (selectedBreedLayout != null) {
             selectedBreedLayout.setBackgroundColor(Color.TRANSPARENT);
         }
 
-        // Get the new selection
         RecyclerView.ViewHolder viewHolder = breedRecyclerView.findViewHolderForAdapterPosition(position);
         if (viewHolder != null) {
             selectedBreedLayout = viewHolder.itemView.findViewById(R.id.breedSelection);
@@ -163,6 +158,16 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
     }
 
     public void passToStaffAddPet2() {
+        if (selectedType == null || selectedType.equals("Choose your pet type")) {
+            Toast.makeText(this, "Please select a pet type", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedBreed == null) {
+            Toast.makeText(this, "Please select a pet breed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Intent intent = new Intent(this, staff_add_pet2.class);
 
         if (imageUri != null) {
@@ -172,5 +177,9 @@ public class staff_add_pet1 extends AppCompatActivity implements BreedAdapter.On
         intent.putExtra("breed", selectedBreed);
 
         startActivity(intent);
+    }
+
+    public void goBackPetfolioPage() {
+        finish();
     }
 }

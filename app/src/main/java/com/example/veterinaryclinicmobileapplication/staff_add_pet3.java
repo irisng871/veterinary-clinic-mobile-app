@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -38,19 +39,21 @@ import java.util.Map;
 public class staff_add_pet3 extends AppCompatActivity {
 
     Uri imageUri;
-
     EditText petPersonality, petHealthStatus, petAllergy, petHistory;
-
     Button doneBtn;
-
+    ImageButton backBtn;
     FirebaseFirestore db;
-
     FirebaseStorage storage;
+    StorageReference storageRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_add_pet3);
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
 
         petPersonality = findViewById(R.id.personality);
         petHealthStatus = findViewById(R.id.healthStatus);
@@ -58,8 +61,8 @@ public class staff_add_pet3 extends AppCompatActivity {
         petHistory = findViewById(R.id.history);
         doneBtn = findViewById(R.id.doneBtn);
 
-        db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> goBackStaffAddPet2Page());
 
         Intent intent = getIntent();
         String imageUriString = intent.getStringExtra("image");
@@ -76,7 +79,6 @@ public class staff_add_pet3 extends AppCompatActivity {
         String estimatedAge = intent.getStringExtra("estimated_age");
         String neutered = intent.getStringExtra("neutered");
 
-
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,55 +90,54 @@ public class staff_add_pet3 extends AppCompatActivity {
                 history = String.valueOf(petHistory.getText());
 
                 // check empty
-                if (TextUtils.isEmpty(personality)) {
-                    Toast.makeText(staff_add_pet3.this, "Please enter the pet personality", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(personality) || TextUtils.isEmpty(healthStatus) || TextUtils.isEmpty(allergy) || TextUtils.isEmpty(history)) {
+                    Toast.makeText(staff_add_pet3.this, "Please enter all required fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (TextUtils.isEmpty(healthStatus)) {
-                    Toast.makeText(staff_add_pet3.this, "Please enter the pet health status", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(allergy)) {
-                    Toast.makeText(staff_add_pet3.this, "Please enter the pet allergy", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(history)) {
-                    Toast.makeText(staff_add_pet3.this, "Please enter the pet history", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                generateId(imageUri, type, breed, name, gender, weight, estimatedBirthday, estimatedAge, neutered, personality, healthStatus, allergy, history);
+                generateId(type, breed, name, gender, weight, estimatedBirthday, estimatedAge, neutered, personality, healthStatus, allergy, history);
             }
         });
     }
 
-    private void generateId(Uri imageUri, String type, String breed, String name, String gender, String weight, String estimatedBirthday, String estimatedAge, String neutered, String personality, String healthStatus, String allergy, String history) {
+    public void generateId(String type, String breed, String name, String gender, String weight, String estimatedBirthday, String estimatedAge, String neutered, String personality, String healthStatus, String allergy, String history) {
         db.collection("adoptable_pet")
-                .orderBy("id", Query.Direction.DESCENDING)
-                .limit(1)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        String newId = "AP1";
+                        int maxNumber = 0; // To track the highest number found
+
+                        // Loop through each document to find the highest ID
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String lastId = document.getString("id");
                             if (lastId != null && lastId.startsWith("AP")) {
-                                int lastNumber = Integer.parseInt(lastId.substring(2));
-                                newId = "AP" + (lastNumber + 1);
+                                String numberPart = lastId.substring(2);
+                                try {
+                                    int number = Integer.parseInt(numberPart);
+                                    // Update maxNumber if this number is greater
+                                    if (number > maxNumber) {
+                                        maxNumber = number;
+                                    }
+                                } catch (NumberFormatException e) {
+                                    Log.e("ID Parsing Error", "Error parsing ID: " + lastId, e);
+                                }
                             }
                         }
-                        savePetDetails (newId, type, breed, name, gender, weight, estimatedBirthday, estimatedAge, neutered, personality, healthStatus, allergy, history);
+
+                        // Generate the new ID by incrementing the maxNumber found
+                        String newId = "AP" + (maxNumber + 1);
+                        Log.d("New ID", newId);
+                        savePetDetails(newId, type, breed, name, gender, weight, estimatedBirthday, estimatedAge, neutered, personality, healthStatus, allergy, history);
+                    } else {
+                        Log.e("Firestore Error", "Error getting documents", task.getException());
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore Error", "Error retrieving data", e);
                 });
     }
 
     public void savePetDetails(String newId, String type, String breed, String name, String gender, String weight, String estimatedBirthday, String estimatedAge, String neutered, String personality, String healthStatus, String allergy, String history) {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
-
         Map<String, Object> petData = new HashMap<>();
         petData.put("id", newId);
         petData.put("type", type);
@@ -153,19 +154,14 @@ public class staff_add_pet3 extends AppCompatActivity {
         petData.put("history", history);
 
         if (imageUri != null) {
-            // Determine file extension
             String fileExtension = getFileExtension(imageUri);
             String fileName = "images/" + newId + "." + fileExtension;
             StorageReference imageRef = storageRef.child(fileName);
 
-            // Upload the image
             imageRef.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
-                        // Save image name to petData
                         petData.put("image", fileName);
 
-                        // Save pet data to Firestore
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("adoptable_pet")
                                 .document(newId)
                                 .set(petData)
@@ -226,20 +222,18 @@ public class staff_add_pet3 extends AppCompatActivity {
         }
     }
 
-    private String getFileExtension(Uri uri) {
+    public String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         String mimeType = contentResolver.getType(uri);
 
         if (mimeType != null) {
             switch (mimeType) {
                 case "image/jpeg":
-                    return "jpg";
+                    return "jpeg";
                 case "image/png":
                     return "png";
-                case "image/gif":
-                    return "gif";
-                case "application/pdf":
-                    return "pdf";
+                case "image/jpg":
+                    return "jpg";
                 default:
                     return "unknown";
             }
@@ -247,9 +241,7 @@ public class staff_add_pet3 extends AppCompatActivity {
         return "unknown";
     }
 
-    public void goBackStaffAddPet2Page(View view){
-        Intent intent = new Intent(this, staff_add_pet2.class);
-        TextView ppCheckBox = findViewById(R.id.backBtn);
-        startActivity(intent);
+    public void goBackStaffAddPet2Page(){
+        finish();
     }
 }
