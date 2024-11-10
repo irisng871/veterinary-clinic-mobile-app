@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="name"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="40dp"
-            android:text="date"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="80dp"
-            android:text="time"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="120dp"
-            android:text="diagnosis"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="160dp"
-            android:text="action"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -148,7 +148,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="200dp"
-            android:text="medication"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -167,7 +167,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="240dp"
-            android:text="remarks"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -186,8 +186,32 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginTop="280dp"
-            android:text="payment amount"
+            android:text="-"
             android:textColor="#000000"
             android:textSize="16sp" />
     </RelativeLayout>
+
+    <Button
+        android:id="@+id/editBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="410dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#767676"
+        android:fontFamily="@font/yeseva_one"
+        android:text="Edit Medical Record"
+        android:textSize="14sp" />
+
+    <Button
+        android:id="@+id/deleteBtn"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="470dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#ff0000"
+        android:fontFamily="@font/yeseva_one"
+        android:text="Delete"
+        android:textSize="14sp" />
 </RelativeLayout>

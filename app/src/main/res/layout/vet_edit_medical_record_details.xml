@@ -7,7 +7,7 @@
     android:background="#d7dade">
 
     <TextView
-        android:id="@+id/addMedicalRecordHeader"
+        android:id="@+id/editMedicalRecordHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,7 +15,7 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="Add Medical Record"
+        android:text="Edit Medical Record"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
@@ -216,7 +216,7 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/addBtn"
+        android:id="@+id/editBtn"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -224,6 +224,6 @@
         android:layout_marginBottom="30dp"
         android:backgroundTint="#252E63"
         android:fontFamily="@font/yeseva_one"
-        android:text="Add"
+        android:text="Edit"
         android:textSize="14sp" />
 </RelativeLayout>

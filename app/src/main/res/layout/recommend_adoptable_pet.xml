@@ -28,6 +28,15 @@
         android:layout_marginTop="70dp"
         android:orientation="vertical"/>
 
+    <ImageButton
+        android:id="@+id/filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="620dp"
+        android:layout_marginLeft="290dp"
+        android:backgroundTint="#252E63"
+        app:srcCompat="@drawable/filter__1_" />
+
     <include
         android:id="@+id/footer"
         layout="@layout/footer"

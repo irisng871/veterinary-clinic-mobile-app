@@ -14,40 +14,60 @@
         android:onClick="goHomePage"/>
 
     <ImageButton
-        android:id="@+id/aiChatbot"
+        android:id="@+id/logoutBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#ede7de"
         android:layout_alignParentRight="true"
-        app:srcCompat="@drawable/landbot" />
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#ede7de"
+        app:srcCompat="@drawable/logout" />
 
-    <CalendarView
-        android:id="@+id/calendar"
+    <TextView
+        android:id="@+id/reportText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="90dp"
+        android:layout_marginLeft="20dp"
+        android:text="Expense Tracking Report"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:textSize="20sp" />
+
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/barChart"
+        android:layout_width="320dp"
+        android:layout_height="270dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"/>
 
     <Button
         android:id="@+id/appointmentBtn"
-        android:layout_width="200dp"
+        android:layout_width="210dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="620dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginTop="630dp"
         android:backgroundTint="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:text="Make An Appointment"
         android:textSize="14sp"
         android:onClick="goAppointmentPage"/>
 
+    <ImageButton
+        android:id="@+id/aiChatbot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#ede7de"
+        android:layout_marginTop="620dp"
+        android:layout_marginStart="310dp"
+        app:srcCompat="@drawable/landbot" />
+
     <TextView
         android:id="@+id/appointmentHistory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="370dp"
+        android:layout_marginTop="390dp"
         android:layout_marginLeft="20dp"
-        android:text="Appointment History: "
+        android:text="My Appointment "
         android:textColor="#000000"
         android:textStyle="bold"
         android:textSize="20sp" />
@@ -55,9 +75,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appointmentHistoryRecyclerView"
         android:layout_width="300dp"
-        android:layout_height="210dp"
+        android:layout_height="190dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="410dp"
+        android:layout_marginTop="430dp"
         android:orientation="horizontal"/>
 
     <include

@@ -20,16 +20,6 @@
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
 
-    <ImageButton
-        android:id="@+id/backBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="30px"
-        android:layout_marginBottom="12dp"
-        android:background="@drawable/left_chevron"
-        android:baselineAligned="false"/>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appointmentRecyclerView"
         android:layout_width="300dp"

@@ -7,7 +7,7 @@
     android:background="#ede7de">
 
     <TextView
-        android:id="@+id/appointmentHeader"
+        android:id="@+id/addScheduleHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,7 +15,7 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="Appointment"
+        android:text="Add Schedule"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
@@ -37,37 +37,13 @@
         android:layout_centerHorizontal="true">
 
         <TextView
-            android:id="@+id/petName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pet Name"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-
-        <Spinner
-            android:id="@+id/selectPetName"
-            style="@style/Widget.AppCompat.DropDownItem.Spinner"
-            android:layout_width="290dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:background="@drawable/spinner_stroke"
-            tools:ignore="TouchTargetSizeCheck"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="170dp"
-        android:layout_centerHorizontal="true">
-
-        <TextView
             android:id="@+id/scheduleDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="25dp"
             android:text="Date"
             android:textColor="#000000"
-            android:textSize="17sp" />
+            android:textSize="16sp" />
 
         <CalendarView
             android:id="@+id/date"
@@ -76,24 +52,49 @@
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
-    <GridLayout
-        android:id="@+id/slotGrid"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="400dp"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:id="@+id/scheduleTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:text="Time"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <TimePicker
+            android:id="@+id/time"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:timePickerMode="spinner"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="685dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="520dp"
-        android:columnCount="3"
-        android:rowCount="2" />
+        android:text="Kindly note that adding a schedule\nfor today is not allowed."
+        android:padding="12dp"
+        android:textColor="@android:color/black"
+        android:gravity="center"/>
 
     <Button
-        android:id="@+id/bookBtn"
+        android:id="@+id/nxtBtn"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="700dp"
+        android:layout_marginTop="620dp"
         android:layout_marginBottom="30dp"
         android:backgroundTint="#252E63"
         android:fontFamily="@font/yeseva_one"
-        android:text="Book"
+        android:text="Next"
         android:textSize="14sp" />
+
 </RelativeLayout>

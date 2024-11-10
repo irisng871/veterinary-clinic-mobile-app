@@ -38,7 +38,7 @@
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="300dp"
-            android:layout_height="540dp"
+            android:layout_height="600dp"
             android:fillViewport="true">
 
             <androidx.recyclerview.widget.RecyclerView

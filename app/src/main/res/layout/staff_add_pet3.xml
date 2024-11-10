@@ -15,7 +15,7 @@
         android:background="#252E63"
         android:fontFamily="@font/yeseva_one"
         android:padding="15dp"
-        android:text="Add Pet"
+        android:text="Add Adoptable Pet"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp" />
